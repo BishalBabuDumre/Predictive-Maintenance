@@ -1,0 +1,57 @@
+name: Isolation Forest
+on:
+  workflow_dispatch: # Allows to run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Fetch main branch
+        run: git fetch origin main
+
+      - name: Compare requirements.txt with main
+        id: req_check
+        run: |
+          CURRENT_HASH=$(sha256sum requirements.txt | cut -d' ' -f1)
+          MAIN_HASH=$(git show origin/main:requirements.txt | sha256sum | cut -d' ' -f1)
+
+          echo "CURRENT_HASH=$CURRENT_HASH"
+          echo "MAIN_HASH=$MAIN_HASH"
+
+          if [ "$CURRENT_HASH" != "$MAIN_HASH" ]; then
+            echo "REQ_CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "REQ_CHANGED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Show dependency update status
+        run: |
+          echo "Requirements changed compared to main: $REQ_CHANGED"
+
+      - name: Run Python script
+        run: |
+          python ./training/isolationForest.py
