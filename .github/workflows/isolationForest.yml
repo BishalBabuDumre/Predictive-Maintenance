@@ -2,6 +2,9 @@ name: Isolation Forest
 on:
   workflow_dispatch: # Allows to run it manually for testing
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,9 +37,10 @@ jobs:
         run: |
           python ./training/isolationForest.py
 
-      - name: Upload anomaly results
-        uses: actions/upload-artifact@v4
-        with:
-          name: anomaly-results
-          path: data/processed/anomalies_0.csv
-
+      - name: Commit and Push anomaly results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/processed/anomalies_0.csv
+          # Only commit if there are actually changes to avoid workflow errors
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: update anomaly results [skip ci]" && git push)
