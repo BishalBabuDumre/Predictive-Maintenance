@@ -17,24 +17,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Fetch main branch
-        run: git fetch origin main
-
-      - name: Compare requirements.txt with main
-        id: req_check
-        run: |
-          CURRENT_HASH=$(sha256sum requirements.txt | cut -d' ' -f1)
-          MAIN_HASH=$(git show origin/main:requirements.txt | sha256sum | cut -d' ' -f1)
-
-          echo "CURRENT_HASH=$CURRENT_HASH"
-          echo "MAIN_HASH=$MAIN_HASH"
-
-          if [ "$CURRENT_HASH" != "$MAIN_HASH" ]; then
-            echo "REQ_CHANGED=true" >> $GITHUB_ENV
-          else
-            echo "REQ_CHANGED=false" >> $GITHUB_ENV
-          fi
-
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
@@ -46,11 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ "$REQ_CHANGED" = "true" ]; then
-            pip install -r requirements.txt
-          else
-            echo "Skipping install (no dependency changes)"
-          fi
+          pip install -r requirements.txt
 
       - name: Show dependency update status
         run: |
