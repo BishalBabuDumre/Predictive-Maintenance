@@ -5,11 +5,9 @@ from sklearn.ensemble import IsolationForest
 import time
 
 t0 = time.time()
-# Get the directory where the script is located
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# Combine it with the filename
-file_path = os.path.join(script_dir, 'benLomond.csv')
-save_path = os.path.join(script_dir, 'anomalies_0.csv')
+
+file_path = os.path.join('./../data/raw/original.csv')
+save_path = os.path.join('./../data/processed/anomalies_0.csv')
 
 df = pd.read_csv(file_path, parse_dates=["DateTime"])
 df = df.sort_values("DateTime").reset_index(drop=True)
