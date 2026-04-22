@@ -46,7 +46,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ "$REQ_CHANGED" = "true" ]; then
+            pip install -r requirements.txt
+          else
+            echo "Skipping install (no dependency changes)"
+          fi
 
       - name: Show dependency update status
         run: |
