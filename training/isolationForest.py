@@ -7,7 +7,7 @@ import time
 t0 = time.time()
 
 file_path = os.path.join('data/raw/original.csv')
-save_path = os.path.join('data/processed/anomalies_0.csv')
+save_path = os.path.join('anomalies_0.csv')
 
 df = pd.read_csv(file_path, parse_dates=["DateTime"])
 df = df.sort_values("DateTime").reset_index(drop=True)
