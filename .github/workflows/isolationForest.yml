@@ -33,3 +33,10 @@ jobs:
       - name: Run Python script
         run: |
           python ./training/isolationForest.py
+
+      - name: Upload anomaly results
+        uses: actions/upload-artifact@v4
+        with:
+          name: anomaly-results
+          path: data/processed/anomalies_0.csv
+
