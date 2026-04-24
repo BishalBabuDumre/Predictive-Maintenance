@@ -128,7 +128,7 @@ def retrain_pipeline():
 
     # Run Optuna study
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=20)
+    study.optimize(objective, n_trials=100)
 
     wandb.summary['best_score'] = study.best_value
     wandb.summary['best_params'] = study.best_params
