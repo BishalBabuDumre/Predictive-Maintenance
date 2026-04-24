@@ -6,8 +6,9 @@ import datetime
 import time
 
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import IsolationForest
+
+run_name = f"run_{datetime.now().strftime('%m%d_%H%M')}"
 
 # 🚀 Simulated IoT data function (replace with your real solar IoT data source)
 def get_new_data():
@@ -45,7 +46,7 @@ def retrain_pipeline():
     wandb.init(
         project="IsolationForest-Sensor",
         job_type="hyperparameter-optimization-without-scaler",
-        name="baseline-experiment-v1",
+        name=run_name,
         config={}
     )
 
