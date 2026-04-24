@@ -12,13 +12,11 @@ from sklearn.ensemble import IsolationForest
 # 🚀 Simulated IoT data function (replace with your real solar IoT data source)
 def get_new_data():
     # Load CSV file
-    filename = '2025-06-15.csv'
+    filename = 'data/raw/original.csv'
     df = pd.read_csv(filename)
 
     # Select desired columns
-    columns_to_extract = ['Vpeak', 'Ipeak', 'Voc', 'Isc', 'Temp1', 'Temp2', 'Temperature_Ambient', 'Temperature_Top of MT',
-                       'auxInput_converted_value_Humidity (relative)', 'auxInput_converted_value_Wind Speed', 
-                       'Irradiance_before_Irrad Si-Ref 058', 'Irradiance_before_Irrad Si-Ref 061']
+    columns_to_extract = ['Temperature(F)']
     selected_df = df[columns_to_extract]
 
     # Convert to NumPy array
@@ -45,7 +43,7 @@ def retrain_pipeline():
     X = get_new_data()
 
     wandb.init(
-        project="IsolationForest-Anomaly-Detection",
+        project="IsolationForest-Sensor",
         job_type="hyperparameter-optimization-without-scaler",
         config={}
     )
@@ -93,6 +91,3 @@ def automatic_retraining(interval_seconds=3600):
 # ✅ Manual run
 if __name__ == "__main__":
     retrain_pipeline()
-
-    # Optional: run automatic retraining (disable for now)
-    # automatic_retraining(interval_seconds=3600)
