@@ -107,10 +107,10 @@ def retrain_pipeline():
     # Objective function for Optuna
     def objective(trial):
         params = {
-            'n_estimators': trial.suggest_int('n_estimators', 50, 120),
-            'max_samples': trial.suggest_float('max_samples', 0.1, 1.0),
-            'max_features': trial.suggest_int('max_features', 1, X.shape[1]),
-            'contamination': trial.suggest_float('contamination', 0.01, 0.3)
+            'n_estimators': trial.suggest_int('n_estimators', 70, 100),
+            'max_samples': trial.suggest_float('max_samples', 0.6, 0.95),
+            'max_features': trial.suggest_int('max_features', 8, X.shape[1]),
+            'contamination': trial.suggest_float('contamination', 0.001, 0.1, log = True)
         }
 
         pipeline = create_pipeline(**params)
