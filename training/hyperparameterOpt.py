@@ -13,11 +13,65 @@ run_name = f"run_{datetime.now().strftime('%m%d_%H%M')}"
 # 🚀 Simulated IoT data function (replace with your real solar IoT data source)
 def get_new_data():
     # Load CSV file
-    filename = 'data/raw/original.csv'
-    df = pd.read_csv(filename)
-
+    file_path = 'data/raw/original.csv'
+    df = pd.read_csv(file_path, parse_dates=["DateTime"])
+    df = df.sort_values("DateTime").reset_index(drop=True)
+    
+    # Set index for rolling operations
+    df = df.set_index("DateTime")
+    
+    # Hour of day
+    df["hour"] = df.index.hour
+    
+    # Day of year
+    df["doy"] = df.index.dayofyear
+    
+    # Cyclical encoding
+    df["hour_sin"] = np.sin(2 * np.pi * df["hour"] / 24)
+    df["hour_cos"] = np.cos(2 * np.pi * df["hour"] / 24)
+    
+    df["doy_sin"] = np.sin(2 * np.pi * df["doy"] / 365)
+    df["doy_cos"] = np.cos(2 * np.pi * df["doy"] / 365)
+    
+    # Rolling statistics
+    df["roll_mean_24h"] = df["Temperature(F)"].rolling(24).mean()
+    df["roll_std_24h"] = df["Temperature(F)"].rolling(24).std()
+    
+    df["roll_mean_7d"] = df["Temperature(F)"].rolling(24*7).mean()
+    
+    # Deviation from local expectation
+    df["dev_24h"] = df["Temperature(F)"] - df["roll_mean_24h"]
+    
+    # Instant change
+    df["delta_1h"] = df["Temperature(F)"].diff()
+    
+    # Slope (approx drift)
+    df["slope_24h"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(24)) / 24
+    df["slope_7d"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(24*7)) / (24*7)
+    
+    # Detect flatlining
+    df["roll_std_6h"] = df["Temperature(F)"].rolling(6).std()
+    
+    # Count repeated values (simple version)
+    df["is_same"] = (df["Temperature(F)"].diff() == 0).astype(int)
+    df["repeat_count"] = df["is_same"].rolling(6).sum()
+    
+    df = df.dropna()
+    
     # Select desired columns
-    columns_to_extract = ['Temperature(F)']
+    columns_to_extract = [
+        "Temperature(F)",
+        "hour_sin", "hour_cos",
+        "doy_sin", "doy_cos",
+        "roll_mean_24h",
+        "roll_std_24h",
+        "dev_24h",
+        "delta_1h",
+        "slope_24h",
+        "slope_7d",
+        "roll_std_6h",
+        "repeat_count"
+    ]
     selected_df = df[columns_to_extract]
 
     # Convert to NumPy array
