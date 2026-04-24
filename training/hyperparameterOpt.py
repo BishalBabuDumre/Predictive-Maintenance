@@ -45,6 +45,7 @@ def retrain_pipeline():
     wandb.init(
         project="IsolationForest-Sensor",
         job_type="hyperparameter-optimization-without-scaler",
+        name="baseline-experiment-v1",
         config={}
     )
 
