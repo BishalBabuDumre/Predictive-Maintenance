@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import optuna
 import wandb
-import datetime
+from datetime import datetime
 import time
 
 from sklearn.pipeline import Pipeline
