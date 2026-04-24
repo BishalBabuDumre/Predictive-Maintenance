@@ -2,13 +2,13 @@ import numpy as np
 import pandas as pd
 import optuna
 import wandb
-from datetime import datetime
+import datetime
 import time
 
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import IsolationForest
 
-run_name = f"run_{datetime.now().strftime('%m%d_%H%M')}"
+run_name = f"run_{datetime.datetime.now().strftime('%m%d_%H%M')}"
 
 # 🚀 Simulated IoT data function (replace with your real solar IoT data source)
 def get_new_data():
