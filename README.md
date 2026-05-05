@@ -2,7 +2,7 @@
 ## Introduction
 Temperature data (main/data/raw/original.csv) taken hourly using multiple sensors is available for 20 years in a single geographical location. The idea of multiple sensors is actually about the sensors replaced in either usual maintenance cycle, or hardware failure. Neither, it is just a single data value of temperature for that single location. First, any anomalies are hunted during the exploratory phase. After that, a baseline weather data is trained in Deep Learning (DL) algorithms, ultimately providing us the model to be deployed in the edge. Model development is in Python for faster iteration, whereas edge deployment is carried out in C++ to handle latency.
 ## Isolation Forest
-Isolation Forest (IsoFor) is one of the best classical Machine Learning (ML) algorithm in order to hunt for anomalies. In order to hunt for anomalies, a multi-stage Bayesian Optimization (BayOpt) process (main/training/hyperparameterOpt.py) is conducted to move from broad initial exploration to a converged "Search Space" as given in the table below:
+Isolation Forest (IsoFor) is one of the best classical Machine Learning (ML) algorithm in order to hunt for anomalies. A multi-stage Bayesian Optimization (BayOpt) process (main/training/hyperparameterOpt.py) is conducted to move from broad initial exploration to a converged "Search Space" as given in the table below:
 | Phase        | Trials | Strategy               | Result                                                         |
 |--------------|--------|------------------------|----------------------------------------------------------------|
 | Initial Exploration  | 20     | Random/Bayesian Search | Identified high sensitivity in contamination.                  |
