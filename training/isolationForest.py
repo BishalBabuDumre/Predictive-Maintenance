@@ -77,7 +77,7 @@ X = df[features]
 model = IsolationForest(
     n_estimators=88,
     max_samples=0.96,
-    max_features: 12,
+    max_features=12,
     random_state=42,
     contamination=0.0015
 )
