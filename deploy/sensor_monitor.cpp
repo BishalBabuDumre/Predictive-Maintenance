@@ -12,6 +12,11 @@
 // Filename in SD Card
 const std::string BUFFER_FILE = "sensor_history.dat";
 
+// ===== GLOBAL BUFFER =====
+float temp_buffer[WINDOW] = {0};
+int index_ptr = 0;
+bool buffer_full = false;
+
 // Loads the buffer from the SD card
 void load_buffer() {
     std::ifstream is(BUFFER_FILE, std::ios::binary);
@@ -31,11 +36,6 @@ void save_buffer() {
         os.write(reinterpret_cast<char*>(&buffer_full), sizeof(buffer_full));
     }
 }
-
-// ===== GLOBAL BUFFER =====
-float temp_buffer[WINDOW] = {0};
-int index_ptr = 0;
-bool buffer_full = false;
 
 // ===== ADD NEW DATA =====
 void add_reading(float temp) {
