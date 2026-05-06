@@ -10,7 +10,7 @@
 #define WINDOW 168  // 7 days hourly
 
 // Filename in SD Card
-const std::string BUFFER_FILE = "sensor_history.dat";
+const std::string BUFFER_FILE = "/home/pi/project_edge/sensor_history.dat";
 
 // ===== GLOBAL BUFFER =====
 float temp_buffer[WINDOW] = {0};
@@ -99,7 +99,7 @@ int main() {
     session_options.EnableMemPattern();
     session_options.SetExecutionMode(ExecutionMode::ORT_SEQUENTIAL);
     
-    Ort::Session session(env, "model.onnx", session_options);
+    Ort::Session session(env, "/home/pi/project_edge/model.onnx", session_options);
     Ort::AllocatorWithDefaultOptions allocator;
 
     const char* input_names[] = {"input"};
