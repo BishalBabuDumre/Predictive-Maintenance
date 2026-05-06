@@ -2,7 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
-#include <cstring>
+#include <string>
+#include <cstdlib>
 
 // ===== CONFIG =====
 #define WINDOW 168  // 7 days hourly
