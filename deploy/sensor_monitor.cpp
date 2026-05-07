@@ -5,10 +5,6 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
-#include <fcntl.h>
-#include <linux/i2c-dev.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 // ===== CONFIG =====
 #define WINDOW 168  // 7 days hourly
