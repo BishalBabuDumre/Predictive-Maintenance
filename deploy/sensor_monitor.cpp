@@ -5,6 +5,10 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 // ===== CONFIG =====
 #define WINDOW 168  // 7 days hourly
@@ -35,6 +39,27 @@ void save_buffer() {
         os.write(reinterpret_cast<char*>(&index_ptr), sizeof(index_ptr));
         os.write(reinterpret_cast<char*>(&buffer_full), sizeof(buffer_full));
     }
+}
+
+// Read Sensor Data
+float read_sensor_hardware() {
+    int file;
+    char *bus = "/dev/i2c-1"; // Standard RPi I2C bus
+    if ((file = open(bus, O_RDWR)) < 0) return -999.0;
+
+    // 0x48 is a common default address for sensors like the MCP9808
+    ioctl(file, I2C_SLAVE, 0x48);
+
+    // This part varies slightly depending on your specific sensor model
+    char reg[1] = {0x05}; // Register for Ambient Temp
+    write(file, reg, 1);
+    char data[2] = {0};
+    if (read(file, data, 2) != 2) return -999.0;
+
+    // Convert raw data to Celsius (Standard 12-bit conversion)
+    int raw = ((data[0] & 0x1F) * 256) + data[1];
+    float celsius = raw / 16.0;
+    return celsius;
 }
 
 // ===== ADD NEW DATA =====
@@ -78,8 +103,13 @@ int main() {
     load_buffer();
 
     // 2. Get the new sensor reading (from CLI or sensor)
-    float new_temp;
-    if (!(std::cin >> new_temp)) return 1; 
+    float new_temp= read_sensor_hardware();
+
+    // Check for hardware failure (using our custom return codes!)
+    if (new_temp == -999.0) {
+        std::cerr << "Hardware Read Error" << std::endl;
+        return 1; 
+    }
 
     // 3. Update the buffer and save immediately
     add_reading(new_temp);
