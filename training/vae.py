@@ -1,0 +1,62 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.preprocessing import StandardScaler
+
+class VAE(nn.Module):
+    def __init__(self, input_dim, latent_dim=4):
+        super(VAE, self).__init__()
+        # Encoder
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU()
+        )
+        self.fc_mu = nn.Linear(16, latent_dim)
+        self.fc_logvar = nn.Linear(16, latent_dim)
+        
+        # Decoder
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 16),
+            nn.ReLU(),
+            nn.Linear(16, 32),
+            nn.ReLU(),
+            nn.Linear(32, input_dim)
+        )
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
+    def forward(self, x):
+        h = self.encoder(x)
+        mu, logvar = self.fc_mu(h), self.fc_logvar(h)
+        z = self.reparameterize(mu, logvar)
+        return self.decoder(z), mu, logvar
+
+def vae_loss_function(recon_x, x, mu, logvar):
+    MSE = nn.functional.mse_loss(recon_x, x, reduction='sum')
+    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    return MSE + KLD
+
+# Data Preparation (Assuming 'X' from your dataframe)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X) # X from your Isolation Forest script
+train_tensor = torch.FloatTensor(X_scaled)
+train_loader = DataLoader(TensorDataset(train_tensor), batch_size=64, shuffle=True)
+
+# Training Loop
+model = VAE(input_dim=len(features))
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
+
+for epoch in range(50):
+    for batch in train_loader:
+        data = batch[0]
+        optimizer.zero_grad()
+        recon_batch, mu, logvar = model(data)
+        loss = vae_loss_function(recon_batch, data, mu, logvar)
+        loss.backward()
+        optimizer.step()
