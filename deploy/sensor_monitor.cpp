@@ -41,25 +41,36 @@ void save_buffer() {
     }
 }
 
-// Read Sensor Data
 float read_sensor_hardware() {
-    int file;
-    char *bus = "/dev/i2c-1"; // Standard RPi I2C bus
-    if ((file = open(bus, O_RDWR)) < 0) return -999.0;
+    // Replace with your actual sensor ID found via 'ls /sys/bus/w1/devices/'
+    std::string device_id = "28-xxxxxxxxxxxx"; 
+    std::string path = "/sys/bus/w1/devices/" + device_id + "/w1_slave";
+    
+    std::ifstream file(path);
+    if (!file.is_open()) return -999.0;
 
-    // 0x48 is a common default address for sensors like the MCP9808
-    ioctl(file, I2C_SLAVE, 0x48);
+    std::string line;
+    float celsius = 0.0;
+    bool valid = false;
 
-    // This part varies slightly depending on your specific sensor model
-    char reg[1] = {0x05}; // Register for Ambient Temp
-    write(file, reg, 1);
-    char data[2] = {0};
-    if (read(file, data, 2) != 2) return -999.0;
+    // The DS18B20 output has two lines. 
+    // Line 1 ends in "YES" if the checksum passed.
+    // Line 2 contains "t=23500" (which is 23.500°C)
+    while (std::getline(file, line)) {
+        if (line.find("YES") != std::string::npos) {
+            valid = true;
+        } else if (valid && line.find("t=") != std::string::npos) {
+            size_t pos = line.find("t=");
+            int raw = std::stoi(line.substr(pos + 2));
+            celsius = raw / 1000.0;
+        }
+    }
+    file.close();
 
-    // Convert raw data to Celsius (Standard 12-bit conversion)
-    int raw = ((data[0] & 0x1F) * 256) + data[1];
-    float celsius = raw / 16.0;
-    return celsius;
+    if (!valid) return -999.0;
+
+    // Convert to Fahrenheit for your "10s of fahrenheit" scale
+    return (celsius * 9.0 / 5.0) + 32.0;
 }
 
 // ===== ADD NEW DATA =====
@@ -102,7 +113,7 @@ int main() {
     // 1. Initialize data from SD Card
     load_buffer();
 
-    // 2. Get the new sensor reading (from CLI or sensor)
+    // 2. Get the new sensor reading
     float new_temp= read_sensor_hardware();
 
     // Check for hardware failure (using our custom return codes!)
