@@ -60,3 +60,23 @@ for epoch in range(50):
         loss = vae_loss_function(recon_batch, data, mu, logvar)
         loss.backward()
         optimizer.step()
+
+# 4. Export to ONNX
+model.eval()
+# Create a dummy input that matches your feature dimensions
+dummy_input = torch.randn(1, input_dim) 
+
+onnx_path = "model.onnx"
+torch.onnx.export(
+    model, 
+    dummy_input, 
+    onnx_path,
+    export_params=True,
+    opset_version=12,
+    do_constant_folding=True,
+    input_names=['input'],
+    output_names=['output', 'mu', 'logvar'],
+    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+)
+
+print(f"Model successfully saved to {onnx_path}")
