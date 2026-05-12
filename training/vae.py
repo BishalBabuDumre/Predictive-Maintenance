@@ -55,6 +55,10 @@ def prepare_vae_data(file_path, batch_size=64):
     hour = df["DateTime"].dt.hour
     df["hour_sin"] = np.sin(2 * np.pi * hour / 24)
     df["hour_cos"] = np.cos(2 * np.pi * hour / 24)
+
+    month = df["DateTime"].dt.month
+    df["month_sin"] = np.sin(2 * np.pi * month / 24)
+    df["month_cos"] = np.cos(2 * np.pi * month / 24)
     
     # Seasonal cycle (365.25 days)
     doy = df["DateTime"].dt.dayofyear
@@ -86,7 +90,7 @@ def prepare_vae_data(file_path, batch_size=64):
     return loader, scaler_x, scaler_y
 
 # Usage
-# train_loader, sx, sy = prepare_vae_data('data/processed/clean_weather.csv')
+train_loader, sx, sy = prepare_vae_data(file_path)
 
 # Training Loop
 model = VAE(input_dim=len(features))
