@@ -4,6 +4,9 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import MinMaxScaler
 
+file_path = os.path.join('data/raw/original.csv')
+save_path = os.path.join('data/model/vae_model.onnx')
+
 class VAE(nn.Module):
     def __init__(self, input_dim, latent_dim=4):
         super(VAE, self).__init__()
