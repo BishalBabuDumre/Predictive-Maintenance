@@ -68,7 +68,7 @@ def prepare_vae_data(file_path, batch_size=64):
     # 3. Define X and y
     # Input X: Cyclical time features
     # Output y: Temperature
-    features = ["hour_sin", "hour_cos", "doy_sin", "doy_cos"]
+    features = ["hour_sin", "hour_cos", "doy_sin", "doy_cos", "month_sin", "month_cos"]
     X = df[features].values
     y = df[["Temperature(F)"]].values
     
