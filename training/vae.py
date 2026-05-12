@@ -87,10 +87,10 @@ def prepare_vae_data(file_path, batch_size=64):
     dataset = TensorDataset(X_tensor, y_tensor)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
-    return loader, scaler_x, scaler_y
+    return loader
 
 # Usage
-train_loader, sx, sy = prepare_vae_data(file_path)
+train_loader = prepare_vae_data(file_path)
 
 # Training Loop
 model = VAE(input_dim=len(features))
