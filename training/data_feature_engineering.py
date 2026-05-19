@@ -25,9 +25,6 @@ def prepare_vae_data(file_path, batch_size=64):
     df["doy_sin"] = np.sin(2 * np.pi * doy / 365.25)
     df["doy_cos"] = np.cos(2 * np.pi * doy / 365.25)
     
-    # 2. Immediate Autoregressive Input
-    df["temp_lag_1h"] = df["Temperature(F)"].shift(1)
-    
     # 3. Multi-Scale Rolling Windows (Assuming Hourly Data)
     # 3-Hour Window (Micro)
     df["roll_mean_3h"] = df["Temperature(F)"].rolling(3).mean()
@@ -45,6 +42,9 @@ def prepare_vae_data(file_path, batch_size=64):
     df["roll_mean_7d"] = df["Temperature(F)"].rolling(24 * 7).mean()
     df["roll_std_7d"] = df["Temperature(F)"].rolling(24 * 7).std()
 
+    # Deviation from local expectation
+    df["dev_24h"] = df["Temperature(F)"] - df["roll_mean_24h"]
+    
     # Slope (approx drift)
     df["slope_24h"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(24)) / 24
     df["slope_3h"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(3)) / 3
@@ -72,7 +72,7 @@ def prepare_vae_data(file_path, batch_size=64):
     # 5. Feature Selection
     features = [
         "hour_sin", "hour_cos", "doy_sin", "doy_cos", "month_sin", "month_cos",
-        "temp_lag_1h", "repeat_count",
+        "dev_24h", "repeat_count",
         "roll_mean_3h", "roll_std_3h",
         "roll_mean_6h", "roll_std_6h",
         "roll_mean_24h", "roll_std_24h",
