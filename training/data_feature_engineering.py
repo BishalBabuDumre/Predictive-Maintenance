@@ -64,7 +64,7 @@ def prepare_vae_data(file_path, batch_size=64):
     df["repeat_count"] = (df["Temperature(F)"].diff().fillna(1) == 0).astype(int).rolling(6).sum()
     
     # 4. Target Variable: Next Step Delta (Keeps VAE honest)
-    df["target_delta"] = df["Temperature(F)"] - df["temp_lag_1h"]
+    df["target_delta"] = df["Temperature(F)"].diff(1)
     
     # Drop NaNs from the large 7-day lag window
     df = df.dropna().reset_index(drop=True)
