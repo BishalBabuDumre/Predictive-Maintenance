@@ -58,6 +58,9 @@ def prepare_vae_data(file_path, batch_size=64):
     
     # 3. Macro-Acceleration: Catches exponential, runaway hardware component degradation
     df["accel_7d"]  = df["slope_7d"].diff(1)
+
+    # Count repeated values
+    df["repeat_count"] = (df["Temperature(F)"].diff() == 0).astype(int).rolling(6).sum()
     
     # 4. Target Variable: Next Step Delta (Keeps VAE honest)
     df["target_delta"] = df["Temperature(F)"] - df["temp_lag_1h"]
@@ -68,7 +71,7 @@ def prepare_vae_data(file_path, batch_size=64):
     # 5. Feature Selection
     features = [
         "hour_sin", "hour_cos", "doy_sin", "doy_cos", "month_sin", "month_cos",
-        "temp_lag_1h",
+        "temp_lag_1h", "repeat_count",
         "roll_mean_3h", "roll_std_3h",
         "roll_mean_6h", "roll_std_6h",
         "roll_mean_24h", "roll_std_24h",
