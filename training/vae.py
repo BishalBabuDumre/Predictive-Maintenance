@@ -75,7 +75,7 @@ save_path = os.path.join(folder_path, "vae_model.onnx")
 torch.onnx.export(
     model, 
     dummy_input, 
-    onnx_path,
+    save_path,
     export_params=True,
     opset_version=12,
     do_constant_folding=True,
