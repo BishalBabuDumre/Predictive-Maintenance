@@ -1,12 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
 from data_feature_engineering import prepare_vae_data
-from sklearn.preprocessing import MinMaxScaler
 
 file_path = os.path.join('data/raw/original.csv')
 save_path = os.path.join('data/model/vae_model.onnx')
+input_dim = 22
 
 class VAE(nn.Module):
     def __init__(self, input_dim, latent_dim=4):
