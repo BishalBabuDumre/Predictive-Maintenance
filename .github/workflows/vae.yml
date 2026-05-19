@@ -37,9 +37,11 @@ jobs:
         run: |
           python ./training/vae.py
 
-      - name: Upload ONNX Model Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: trained-vae-onnx-model
-          path: data/model/vae_model.onnx
-          if-no-files-found: error
+      - name: Commit and Push trained ONNX model
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/model/vae_model.onnx
+          
+          # Only commit and push if the weights/model actually changed
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update trained VAE model weights [skip ci]" && git push)
