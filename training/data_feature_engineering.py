@@ -15,9 +15,10 @@ def prepare_vae_data(file_path, batch_size=64):
     df["hour_sin"] = np.sin(2 * np.pi * hour / 24)
     df["hour_cos"] = np.cos(2 * np.pi * hour / 24)
 
+    # Monthly cycle (12 months)
     month = df["DateTime"].dt.month
-    df["month_sin"] = np.sin(2 * np.pi * month / 24)
-    df["month_cos"] = np.cos(2 * np.pi * month / 24)
+    df["month_sin"] = np.sin(2 * np.pi * month / 12)
+    df["month_cos"] = np.cos(2 * np.pi * month / 12)
     
     # Seasonal cycle (365.25 days)
     doy = df["DateTime"].dt.dayofyear
@@ -60,7 +61,7 @@ def prepare_vae_data(file_path, batch_size=64):
     df["accel_7d"]  = df["slope_7d"].diff(1)
 
     # Count repeated values
-    df["repeat_count"] = (df["Temperature(F)"].diff() == 0).astype(int).rolling(6).sum()
+    df["repeat_count"] = (df["Temperature(F)"].diff().fillna(1) == 0).astype(int).rolling(6).sum()
     
     # 4. Target Variable: Next Step Delta (Keeps VAE honest)
     df["target_delta"] = df["Temperature(F)"] - df["temp_lag_1h"]
