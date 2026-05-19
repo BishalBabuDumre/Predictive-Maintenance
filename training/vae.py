@@ -49,7 +49,7 @@ def vae_loss_function(recon_x, x, mu, logvar):
 train_loader = prepare_vae_data(file_path)
 
 # Training Loop
-model = VAE(input_dim=len(features))
+model = VAE(input_dim)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 for epoch in range(50):
