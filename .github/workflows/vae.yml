@@ -36,3 +36,10 @@ jobs:
       - name: Run Python script
         run: |
           python ./training/vae.py
+
+      - name: Upload ONNX Model Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-vae-onnx-model
+          path: data/model/vae_model.onnx
+          if-no-files-found: error
