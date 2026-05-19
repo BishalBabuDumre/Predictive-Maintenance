@@ -54,7 +54,9 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 for epoch in range(50):
     for batch in train_loader:
+        print(batch)
         data = batch[0]
+        print(data)
         optimizer.zero_grad()
         recon_batch, mu, logvar = model(data)
         loss = vae_loss_function(recon_batch, data, mu, logvar)
