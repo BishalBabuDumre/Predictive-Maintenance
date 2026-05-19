@@ -4,3 +4,5 @@ pandas
 wandb
 optuna
 torch
+onnx
+onnxscript
