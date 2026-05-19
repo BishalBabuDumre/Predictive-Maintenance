@@ -4,7 +4,6 @@ import torch.optim as optim
 from data_feature_engineering import prepare_vae_data
 
 file_path = os.path.join('data/raw/original.csv')
-save_path = os.path.join('data/model/vae_model.onnx')
 input_dim = 22
 
 class VAE(nn.Module):
@@ -66,7 +65,12 @@ model.eval()
 # Create a dummy input that matches your feature dimensions
 dummy_input = torch.randn(1, input_dim) 
 
-onnx_path = "model.onnx"
+# Creating folder inside the repo
+folder_path = "data/model"
+os.makedirs(folder_path, exist_ok=True)
+
+save_path = os.path.join(folder_path, "vae_model.onnx")
+
 torch.onnx.export(
     model, 
     dummy_input, 
@@ -79,4 +83,4 @@ torch.onnx.export(
     dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
 )
 
-print(f"Model successfully saved to {onnx_path}")
+print(f"Model successfully saved to {save_path}")
