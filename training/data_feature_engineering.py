@@ -1,3 +1,9 @@
+import pandas as pd
+import numpy as np
+import torch
+from sklearn.preprocessing import MinMaxScaler
+from torch.utils.data import DataLoader, TensorDataset
+
 def prepare_vae_data(file_path, batch_size=64):
     # 1. Load data
     df = pd.read_csv(file_path, parse_dates=["DateTime"])
@@ -25,8 +31,12 @@ def prepare_vae_data(file_path, batch_size=64):
     # 3-Hour Window (Micro)
     df["roll_mean_3h"] = df["Temperature(F)"].rolling(3).mean()
     df["roll_std_3h"] = df["Temperature(F)"].rolling(3).std()
+
+    # 6-Hour Window (Meso)
+    df["roll_mean_6h"] = df["Temperature(F)"].rolling(6).mean()
+    df["roll_std_6h"] = df["Temperature(F)"].rolling(6).std()
     
-    # 24-Hour Window (Meso)
+    # 24-Hour Window (Diurnal)
     df["roll_mean_24h"] = df["Temperature(F)"].rolling(24).mean()
     df["roll_std_24h"] = df["Temperature(F)"].rolling(24).std()
     
@@ -38,6 +48,16 @@ def prepare_vae_data(file_path, batch_size=64):
     df["slope_24h"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(24)) / 24
     df["slope_3h"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(3)) / 3
     df["slope_7d"] = (df["Temperature(F)"] - df["Temperature(F)"].shift(24*7)) / (24*7)
+
+    # --- 2nd Derivatives (Accelerations) ---
+    # 1. Micro-Acceleration: Catches sudden atmospheric shocks and instant sensor jumps
+    df["accel_3h"]  = df["slope_3h"].diff(1)
+    
+    # 2. Diurnal-Acceleration: Catches day-over-day heating/cooling cycle compounding
+    df["accel_24h"] = df["slope_24h"].diff(1)
+    
+    # 3. Macro-Acceleration: Catches exponential, runaway hardware component degradation
+    df["accel_7d"]  = df["slope_7d"].diff(1)
     
     # 4. Target Variable: Next Step Delta (Keeps VAE honest)
     df["target_delta"] = df["Temperature(F)"] - df["temp_lag_1h"]
@@ -50,9 +70,11 @@ def prepare_vae_data(file_path, batch_size=64):
         "hour_sin", "hour_cos", "doy_sin", "doy_cos", "month_sin", "month_cos",
         "temp_lag_1h",
         "roll_mean_3h", "roll_std_3h",
+        "roll_mean_6h", "roll_std_6h",
         "roll_mean_24h", "roll_std_24h",
         "roll_mean_7d", "roll_std_7d",
-        "slope_24h", "slope_3h", "slope_7d"
+        "slope_3h", "slope_24h", "slope_7d",
+        "accel_3h", "accel_24h", "accel_7d"
     ]
     
     X = df[features].values
