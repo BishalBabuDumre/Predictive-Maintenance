@@ -20,10 +20,14 @@ def test_single_scenario(historical_file, target_timestamp, onnx_model_path="dat
     
     # 2. Run the exact same feature engineering pipeline on your evaluation dataframe
     df, features, target = prepare_data_frame(historical_file)
-    df["DateTime"] = df["DateTime"].dt.tz_localize(None)
+    if df["DateTime"].dt.tz is not None:
+        df["DateTime"] = df["DateTime"].dt.tz_localize(None)
     
     # Filter for our specific evaluation row
-    target_row = df[df["DateTime"] == pd.to_datetime(target_timestamp)]
+    parsed_target = pd.to_datetime(target_timestamp)
+    if parsed_target.tz is not None:
+        parsed_target = parsed_target.tz_localize(None)
+    target_row = df[df["DateTime"] == pd.to_datetime(parsed_target)]
     
     if target_row.empty or target_row[features].isnull().values.any():
         raise ValueError(f"Insufficient history or timestamp {target_timestamp} missing to compute features.")
