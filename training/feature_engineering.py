@@ -1,9 +1,14 @@
 import pandas as pd
 import numpy as np
 
-def prepare_data_frame(file_path):
-    # 1. Load data
-    df = pd.read_csv(file_path, parse_dates=["DateTime"])
+def prepare_data_frame(file_input):
+    # 1. Load data if a path string is provided, otherwise accept the DataFrame directly
+    if isinstance(file_input, str):
+        df = pd.read_csv(file_input, parse_dates=["DateTime"])
+    else:
+        df = file_input.copy() # Keeps original dataframe pristine
+        df["DateTime"] = pd.to_datetime(df["DateTime"]) # Ensure correct type
+        
     df = df.sort_values("DateTime").reset_index(drop=True)
     
     # 2. Cyclical Time Features
