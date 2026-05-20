@@ -27,7 +27,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements_training.txt requirements_testing.txt
+        pip install -r requirements_training.txt -r requirements_testing.txt
 
     # 4. Generate the MinMaxScaler asset from your training data
     - name: Run Scaler Generation
