@@ -20,6 +20,7 @@ def test_single_scenario(historical_file, target_timestamp, onnx_model_path="dat
     
     # 2. Run the exact same feature engineering pipeline on your evaluation dataframe
     df, features, target = prepare_data_frame(historical_file)
+    df["DateTime"] = df["DateTime"].dt.tz_localize(None)
     
     # Filter for our specific evaluation row
     target_row = df[df["DateTime"] == pd.to_datetime(target_timestamp)]
@@ -52,7 +53,7 @@ def test_single_scenario(historical_file, target_timestamp, onnx_model_path="dat
     return reconstruction_loss
 
 file_path = "testing/8_rows.csv"
-target_hour = "2006-06-17T06:00:00-08:00"
+target_hour = "2006-06-17 06:00:00"
 
 print("Simulating Scenario A (Normal)...")
 loss_normal = test_single_scenario(file_path, target_hour)
