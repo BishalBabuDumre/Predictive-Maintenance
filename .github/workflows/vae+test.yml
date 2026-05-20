@@ -1,0 +1,54 @@
+name: VAE Predictive Maintenance Pipeline
+
+on:
+  workflow_dispatch: # Allows to run it manually for testing
+
+jobs:
+  train-and-test:
+    runs-on: ubuntu-latest
+    
+    # Give the job permission to write changes back to your repository
+    permissions:
+      contents: write
+
+    steps:
+    # 1. Check out the repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # 2. Set up the Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-module-version: '3.10'
+        cache: 'pip' # Speeds up subsequent workflow runs
+
+    # 3. Install all required dependencies
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements_training.txt requirements_testing.txt
+
+    # 4. Generate the MinMaxScaler asset from your training data
+    - name: Run Scaler Generation
+      run: python scaler_x.py
+
+    # 5. Train the VAE model and export a fresh, self-contained ONNX file
+    - name: Train and Export VAE Model
+      run: python -m training.vae
+
+    # 6. Run the test script (It will now successfully find the fresh files!)
+    - name: Run Integration Tests
+      run: python -m testing.test
+
+    # 7. Commit and push the updated binaries back to your repo automatically
+    - name: Commit and Push Trained Assets
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Track both your fresh scaler and the self-contained ONNX model
+        git add data/model/scaler_x.pkl data/model/vae_model.onnx
+        
+        # Only commit if something actually changed; [skip ci] prevents an infinite build loop
+        git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update trained VAE model and scaler [skip ci]" && git push)
