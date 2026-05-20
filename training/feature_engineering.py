@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def prepare_data_frame(file_path, batch_size=64):
+def prepare_data_frame(file_path):
     # 1. Load data
     df = pd.read_csv(file_path, parse_dates=["DateTime"])
     df = df.sort_values("DateTime").reset_index(drop=True)
