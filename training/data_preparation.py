@@ -1,13 +1,11 @@
-import pandas as pd
-import numpy as np
 import torch
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader, TensorDataset
 
-def prepare_vae_data(data_frame, features, target, batch_size=64):
+def prepare_vae_data(df, features, target, batch_size=64):
     
-    X = data_frame[features].to_numpy()
-    y = data_frame[target].to_numpy()
+    X = df[features].to_numpy()
+    y = df[target].to_numpy()
     
     # 4. Scaling
     # VAEs perform best when inputs are bounded (0,1) or (-1,1)
