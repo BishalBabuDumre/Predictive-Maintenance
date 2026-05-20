@@ -2,7 +2,8 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from data_feature_engineering import prepare_vae_data
+from data_preparation import prepare_vae_data
+from feature_engineering import prepare_data_frame
 
 file_path = os.path.join('data/raw/original.csv')
 input_dim = 22
@@ -46,7 +47,7 @@ def vae_loss_function(recon_x, x, mu, logvar):
     return MSE + KLD
 
 # Usage
-train_loader = prepare_vae_data(file_path)
+train_loader = prepare_vae_data(prepare_data_frame(file_path))
 
 # Training Loop
 model = VAE(input_dim)
