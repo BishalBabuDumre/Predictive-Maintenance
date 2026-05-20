@@ -31,7 +31,7 @@ jobs:
 
     # 4. Generate the MinMaxScaler asset from your training data
     - name: Run Scaler Generation
-      run: python scaler_x.py
+      run: python -m testing.scaler_x
 
     # 5. Train the VAE model and export a fresh, self-contained ONNX file
     - name: Train and Export VAE Model
