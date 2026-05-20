@@ -6,7 +6,6 @@ from data_preparation import prepare_vae_data
 from feature_engineering import prepare_data_frame
 
 file_path = os.path.join('data/raw/original.csv')
-input_dim = 22
 
 class VAE(nn.Module):
     def __init__(self, input_dim, latent_dim=4):
@@ -51,7 +50,7 @@ df, features, target = prepare_data_frame(file_path)
 train_loader = prepare_vae_data(df, features, target)
 
 # Training Loop
-model = VAE(input_dim)
+model = VAE(input_dim = len(features))
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 for epoch in range(50):
