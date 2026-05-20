@@ -45,18 +45,13 @@ def test_single_scenario(historical_file, target_timestamp, onnx_model_path="dat
     
     return reconstruction_loss
 
-# Create a base context timeline of 8 days (192 hours) at a baseline of ~65°F
-timestamps = pd.date_range(start="2026-05-01", periods=192, freq="H")
-base_temp = 65.0 + 5.0 * np.sin(2 * np.pi * timestamps.hour / 24) # standard daily oscillation
-
-# --- Scenario A: Normal Execution ---
-df_normal = pd.DataFrame({"DateTime": timestamps, "Temperature(F)": base_temp})
-target_hour = "2026-05-08 23:00:00"
+file_path = "8_rows.csv"
+target_hour = "2006-06-17 06:00:00"
 
 print("Simulating Scenario A (Normal)...")
-loss_normal = test_single_scenario(df_normal, target_hour)
+loss_normal = test_single_scenario(file_path, target_hour)
 
-
+df_normal = pd.read_csv(file_path)
 # --- Scenario B: Massive Spike Execution ---
 df_spike = df_normal.copy()
 # Inject an explicit hardware error or sudden jump at our target hour: 130°F instead of ~65°F
