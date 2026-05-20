@@ -47,7 +47,8 @@ def vae_loss_function(recon_x, x, mu, logvar):
     return MSE + KLD
 
 # Usage
-train_loader = prepare_vae_data(prepare_data_frame(file_path))
+df, features, target = prepare_data_frame(file_path)
+train_loader = prepare_vae_data(df, features, target)
 
 # Training Loop
 model = VAE(input_dim)
