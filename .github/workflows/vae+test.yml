@@ -35,7 +35,7 @@ jobs:
 
     # 5. Train the VAE model and export a fresh, self-contained ONNX file
     - name: Train and Export VAE Model
-      run: python -m training.vae
+      run: python training/vae.py
 
     # 6. Run the test script (It will now successfully find the fresh files!)
     - name: Run Integration Tests
