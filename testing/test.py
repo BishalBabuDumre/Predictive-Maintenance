@@ -51,7 +51,7 @@ def test_single_scenario(historical_file, target_timestamp, onnx_model_path="dat
     
     return reconstruction_loss
 
-file_path = "8_rows.csv"
+file_path = "testing/8_rows.csv"
 target_hour = "2006-06-17 06:00:00"
 
 print("Simulating Scenario A (Normal)...")
