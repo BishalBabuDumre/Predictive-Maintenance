@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import onnxruntime as ort
+import joblib
 from sklearn.preprocessing import MinMaxScaler
 from training.feature_engineering import prepare_data_frame
 
@@ -27,9 +28,13 @@ def test_single_scenario(historical_file, target_timestamp, onnx_model_path="dat
         
     X_raw = target_row[features].values.astype(np.float32)
     
-    # 3. Fit-Scale mirroring (Ideally, fit scaler on train set, here we approximate for isolated bounds)
-    scaler_x = MinMaxScaler(feature_range=(-1, 1))
-    X_scaled = scaler_x.fit_transform(X_raw) # Switch to scaler_x.transform(X_raw) if loading an external pickle scaler.
+    # 3. Load external scaler and TRANSFORM only
+    scaler_path = "data/model/scaler_x.pkl"
+    if not os.path.exists(scaler_path):
+        raise FileNotFoundError(f"Scaler file not found at {scaler_path}. Run save_scaler.py first.")
+        
+    scaler_x = joblib.load(scaler_path)
+    X_scaled = scaler_x.transform(X_raw) # <-- Crucial fix: use transform(), NOT fit_transform()
     
     # 4. Bind ONNX Input and Run Inference
     onnx_inputs = {session.get_inputs()[0].name: X_scaled}
