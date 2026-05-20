@@ -48,9 +48,10 @@ def vae_loss_function(recon_x, x, mu, logvar):
 # Usage
 df, features, target = prepare_data_frame(file_path)
 train_loader = prepare_vae_data(df, features, target)
+input_dim = len(features)
 
 # Training Loop
-model = VAE(input_dim = len(features))
+model = VAE(input_dim)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 for epoch in range(50):
