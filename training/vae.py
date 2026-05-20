@@ -80,6 +80,7 @@ torch.onnx.export(
     export_params=True,
     opset_version=12,
     do_constant_folding=True,
+    save_as_external_data=False,
     input_names=['input'],
     output_names=['output', 'mu', 'logvar'],
     dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
