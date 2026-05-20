@@ -1,4 +1,4 @@
-name: VAE Predictive Maintenance Pipeline
+name: VAE + Testing Full Pipeline
 
 on:
   workflow_dispatch: # Allows to run it manually for testing
