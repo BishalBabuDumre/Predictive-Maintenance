@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import onnxruntime as ort
 from sklearn.preprocessing import MinMaxScaler
-from training/feature_engineering import prepare_data_frame
+from training.feature_engineering import prepare_data_frame
 
 def test_single_scenario(historical_file, target_timestamp, onnx_model_path="data/model/vae_model.onnx"):
     """
