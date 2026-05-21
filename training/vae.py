@@ -34,7 +34,7 @@ for epoch in range(epochs):
         loss = vae_loss_function(recon_batch, data, mu, logvar)
         if math.isnan(loss.item()) or math.isinf(loss.item()):
             print(f"!!! CRITICAL ERROR: Gradient exploded at Epoch {epoch}, crashing to NaN. Halting training.")
-            sys.exit()
+            raise ValueError("Validation loss exploded to NaN/Inf. Halting program.")
         loss.backward()
         optimizer.step()
         total_train_loss += loss.item()
