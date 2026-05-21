@@ -80,28 +80,29 @@ for epoch in range(50):
     if (epoch + 1) % 5 == 0:
         print(f"Epoch [{epoch+1}/{epochs}] | Avg Train Loss: {avg_train_loss:.4f}")
         
-    # --- STEP OUT of the batch loop to log once per epoch ---
-    if (epoch + 1) % 10 == 0:
-        avg_train_loss = total_train_loss / len(train_loader.dataset)
-        print(f'Epoch: {epoch+1}/{epochs}, Avg Training Loss: {avg_train_loss:.4f}')
-        
-        # Validation Pass
-        model.eval() 
-        total_test_loss = 0
-        
-        with torch.no_grad():
-            # Assuming 'test' is a DataLoader yielding (inputs, targets)
-            for inputs, _ in test: 
-                # 1. Unpack all 3 returned values from VAE
-                val_recon, val_mu, val_logvar = model(inputs)
-                
-                # 2. Evaluate using the VAE loss function, not classification accuracy
-                val_loss = vae_loss_function(val_recon, inputs, val_mu, val_logvar)
-                total_test_loss += val_loss.item()
-                
-        avg_test_loss = total_test_loss / len(test.dataset)
-        print(f'---> Test Loss: {avg_test_loss:.4f}')(f'Accuracy:{accuracy:.6f}')
+    # Validation Pass
+    model.eval() 
+    total_val_loss = 0
+    with torch.no_grad():
+        # Assuming 'test' is a DataLoader yielding (inputs, targets)
+        for inputs, _ in test: 
+            # 1. Unpack all 3 returned values from VAE
+            val_recon, val_mu, val_logvar = model(inputs)
+            
+            # 2. Evaluate using the VAE loss function, not classification accuracy
+            val_loss = vae_loss_function(val_recon, inputs, val_mu, val_logvar)
+            total_val_loss += val_loss.item()
+            
+    avg_val_loss = total_val_loss / len(test.dataset)
+    print(f'---> Validation Loss: {avg_val_loss:.4f}')
 
+    # Check early stopping thresholds
+    early_stopper(avg_val_loss, model)
+    
+    if early_stopper.early_stop:
+        print("Early stopping triggered. Training halted.")
+        break
+        
 # 4. Export to ONNX
 model.eval()
 # Create a dummy input that matches your feature dimensions
