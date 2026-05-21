@@ -1,5 +1,5 @@
 import os
-import sys
+import wand
 import torch
 import torch.optim as optim
 from training.model import VAE
@@ -22,45 +22,48 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Initialize your tracking tool before training starts
 early_stopper = EarlyStopping(patience=5, min_delta=0.001)
-epochs = 1000 # Set a high limit, early stopping will save you!
+epochs = 1000 
 
 for epoch in range(epochs):
+    # ==================== TRAINING PHASE ====================
     model.train()
     total_train_loss = 0
     for batch in train_loader:
         data = batch[0]
         optimizer.zero_grad()
-        recon_batch, mu, logvar = model(data)
-        loss = vae_loss_function(recon_batch, data, mu, logvar)
-        if math.isnan(loss.item()) or math.isinf(loss.item()):
-            print(f"!!! CRITICAL ERROR: Gradient exploded at Epoch {epoch}, crashing to NaN. Halting training.")
-            raise ValueError("Validation loss exploded to NaN/Inf. Halting program.")
+        
+        # Replaced with the clean utility function
+        loss = process_vae_batch(
+            model, data, vae_loss_function, stage_name="Training", epoch_idx=epoch
+        )
+        
         loss.backward()
         optimizer.step()
         total_train_loss += loss.item()
+        
     avg_train_loss = total_train_loss / len(train_loader.dataset)
     
-    # 1. Log EVERY epoch to wandb for rich visualization dashboards
+    # 1. Log EVERY epoch to wandb
     wandb.log({
         "epoch": epoch + 1,
         "train_loss": avg_train_loss
     })
 
-    # 2. Only print to terminal every 5 epochs to keep the console clean
+    # 2. Only print to terminal every 5 epochs
     if (epoch + 1) % 5 == 0:
         print(f"Epoch [{epoch+1}/{epochs}] | Avg Train Loss: {avg_train_loss:.4f}")
         
-    # Validation Pass
+    # ==================== VALIDATION PHASE ====================
     model.eval() 
     total_val_loss = 0
     with torch.no_grad():
-        # Assuming 'test' is a DataLoader yielding (inputs, targets)
         for inputs, _ in test: 
-            # 1. Unpack all 3 returned values from VAE
-            val_recon, val_mu, val_logvar = model(inputs)
             
-            # 2. Evaluate using the VAE loss function, not classification accuracy
-            val_loss = vae_loss_function(val_recon, inputs, val_mu, val_logvar)
+            # Replaced with the exact same utility function!
+            val_loss = process_vae_batch(
+                model, inputs, vae_loss_function, stage_name="Validation", epoch_idx=epoch
+            )
+            
             total_val_loss += val_loss.item()
             
     avg_val_loss = total_val_loss / len(test.dataset)
