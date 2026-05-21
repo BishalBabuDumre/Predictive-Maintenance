@@ -5,6 +5,7 @@ import torch.optim as optim
 from training.data_preparation import prepare_vae_data
 from training.feature_engineering import prepare_data_frame
 from training.early_stopping import EarlyStopping
+from training.onnx_export import export_and_verify_onnx
 
 file_path = os.path.join('data/raw/original.csv')
 
@@ -108,27 +109,4 @@ for epoch in range(epochs):
         print("Early stopping triggered. Training halted.")
         break
         
-# 4. Export to ONNX
-model.eval()
-# Create a dummy input that matches your feature dimensions
-dummy_input = torch.randn(1, input_dim) 
-
-# Creating folder inside the repo
-folder_path = "data/model"
-os.makedirs(folder_path, exist_ok=True)
-
-save_path = os.path.join(folder_path, "vae_model.onnx")
-
-torch.onnx.export(
-    model, 
-    dummy_input, 
-    save_path,
-    export_params=True,
-    opset_version=12,
-    do_constant_folding=True,
-    input_names=['input'],
-    output_names=['output', 'mu', 'logvar'],
-    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
-)
-
-print(f"Model successfully saved to {save_path}")
+#export_and_verify_onnx(model, input_dim)
