@@ -2,8 +2,9 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from data_preparation import prepare_vae_data
-from feature_engineering import prepare_data_frame
+from training.data_preparation import prepare_vae_data
+from training.feature_engineering import prepare_data_frame
+from training.early_stopping import EarlyStopping
 
 file_path = os.path.join('data/raw/original.csv')
 
@@ -54,7 +55,11 @@ input_dim = len(features)
 model = VAE(input_dim)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-for epoch in range(50):
+# Initialize your tracking tool before training starts
+early_stopper = EarlyStopping(patience=5, min_delta=0.001)
+epochs = 1000 # Set a high limit, early stopping will save you!
+
+for epoch in range(epochs):
     model.train()
     total_train_loss = 0
     for batch in train_loader:
