@@ -56,6 +56,7 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 for epoch in range(50):
     model.train()
+    total_train_loss = 0
     for batch in train_loader:
         data = batch[0]
         optimizer.zero_grad()
@@ -63,6 +64,19 @@ for epoch in range(50):
         loss = vae_loss_function(recon_batch, data, mu, logvar)
         loss.backward()
         optimizer.step()
+        total_train_loss += loss.item()
+    avg_train_loss = total_train_loss / len(train_loader.dataset)
+    
+    # 1. Log EVERY epoch to wandb for rich visualization dashboards
+    wandb.log({
+        "epoch": epoch + 1,
+        "train_loss": avg_train_loss
+    })
+
+    # 2. Only print to terminal every 5 epochs to keep the console clean
+    if (epoch + 1) % 5 == 0:
+        print(f"Epoch [{epoch+1}/{epochs}] | Avg Train Loss: {avg_train_loss:.4f}")
+        
     # --- STEP OUT of the batch loop to log once per epoch ---
     if (epoch + 1) % 10 == 0:
         avg_train_loss = total_train_loss / len(train_loader.dataset)
