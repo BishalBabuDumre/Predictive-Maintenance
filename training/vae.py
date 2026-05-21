@@ -55,6 +55,7 @@ model = VAE(input_dim)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 for epoch in range(50):
+    model.train()
     for batch in train_loader:
         data = batch[0]
         optimizer.zero_grad()
@@ -62,6 +63,27 @@ for epoch in range(50):
         loss = vae_loss_function(recon_batch, data, mu, logvar)
         loss.backward()
         optimizer.step()
+    # --- STEP OUT of the batch loop to log once per epoch ---
+    if (epoch + 1) % 10 == 0:
+        avg_train_loss = total_train_loss / len(train_loader.dataset)
+        print(f'Epoch: {epoch+1}/{epochs}, Avg Training Loss: {avg_train_loss:.4f}')
+        
+        # Validation Pass
+        model.eval() 
+        total_test_loss = 0
+        
+        with torch.no_grad():
+            # Assuming 'test' is a DataLoader yielding (inputs, targets)
+            for inputs, _ in test: 
+                # 1. Unpack all 3 returned values from VAE
+                val_recon, val_mu, val_logvar = model(inputs)
+                
+                # 2. Evaluate using the VAE loss function, not classification accuracy
+                val_loss = vae_loss_function(val_recon, inputs, val_mu, val_logvar)
+                total_test_loss += val_loss.item()
+                
+        avg_test_loss = total_test_loss / len(test.dataset)
+        print(f'---> Test Loss: {avg_test_loss:.4f}')(f'Accuracy:{accuracy:.6f}')
 
 # 4. Export to ONNX
 model.eval()
