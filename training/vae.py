@@ -62,6 +62,9 @@ for epoch in range(50):
         optimizer.zero_grad()
         recon_batch, mu, logvar = model(data)
         loss = vae_loss_function(recon_batch, data, mu, logvar)
+        if math.isnan(loss.item()) or math.isinf(loss.item()):
+            print(f"!!! CRITICAL ERROR: Gradient exploded at Epoch {epoch}, crashing to NaN. Halting training.")
+            break # Kills the loop immediately so we can fix our learning rate
         loss.backward()
         optimizer.step()
         total_train_loss += loss.item()
