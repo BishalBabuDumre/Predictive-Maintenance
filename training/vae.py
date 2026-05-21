@@ -12,7 +12,7 @@ from training.onnx_export import export_and_verify_onnx
 
 file_path = os.path.join('data/raw/original.csv')
 
-# Usage
+#Loading training data
 df, features, target = prepare_data_frame(file_path)
 train_loader = prepare_vae_data(df, features, target)
 input_dim = len(features)
@@ -29,15 +29,9 @@ for epoch in range(epochs):
     # ==================== TRAINING PHASE ====================
     model.train()
     total_train_loss = 0
-    for batch in train_loader:
-        data = batch[0]
+    for train_data, _ in train_loader:
         optimizer.zero_grad()
-        
-        # Replaced with the clean utility function
-        loss = batch_loss(
-            model, data, vae_loss_function, stage_name="Training", epoch_idx=epoch
-        )
-        
+        loss = batch_loss(model, train_data, vae_loss_function, stage_name="Training", epoch_idx=epoch)
         loss.backward()
         optimizer.step()
         total_train_loss += loss.item()
@@ -58,13 +52,8 @@ for epoch in range(epochs):
     model.eval() 
     total_val_loss = 0
     with torch.no_grad():
-        for inputs, _ in test: 
-            
-            # Replaced with the exact same utility function!
-            val_loss = batch_loss(
-                model, inputs, vae_loss_function, stage_name="Validation", epoch_idx=epoch
-            )
-            
+        for valid_data, _ in test: 
+            val_loss = batch_loss(model, valid_data, vae_loss_function, stage_name="Validation", epoch_idx=epoch)
             total_val_loss += val_loss.item()
             
     avg_val_loss = total_val_loss / len(test.dataset)
