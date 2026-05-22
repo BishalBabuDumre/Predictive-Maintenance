@@ -1,4 +1,5 @@
 import math
+from training.model import vae_loss_function
 
 def batch_loss(model, data, loss_fn, stage_name="Training", epoch_idx=None):
     """
@@ -18,7 +19,7 @@ def batch_loss(model, data, loss_fn, stage_name="Training", epoch_idx=None):
     recon_batch, mu, logvar = model(data)
     
     # 2. Compute VAE loss
-    loss = loss_fn(recon_batch, data, mu, logvar)
+    loss = vae_loss_function(recon_batch, data, mu, logvar)
     
     # 3. Aggressive stability check (Triggers for both training and validation)
     loss_val = loss.item()
