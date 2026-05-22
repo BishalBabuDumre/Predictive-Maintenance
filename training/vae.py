@@ -1,5 +1,5 @@
 import os
-import wand
+import wandb
 import torch
 import torch.optim as optim
 from training.model import VAE
@@ -10,6 +10,15 @@ from training.feature_engineering import prepare_data_frame
 from training.early_stopping import EarlyStopping
 from training.onnx_export import export_and_verify_onnx
 
+# 1. Setup WandB Configuration
+config = {
+    "learning_rate": 1e-3,
+    "epochs": 1000,
+    "patience": 5,
+    "min_delta": 0.001
+}
+
+# 2. Available Raw Data
 train_path = os.path.join('data/raw/training_data.csv')
 valid_path = os.path.join('data/raw/validation_data.csv')
 
@@ -22,11 +31,22 @@ input_dim = len(features_train)
 df_val, features_val, target_val = prepare_data_frame(valid_path)
 val_loader = prepare_vae_data(df_val, features_val, target_val)
 
-# Training Loop
+# Initialize the run
+wandb.init(
+        project="vae-anomaly-detection",
+        job_type="hyperparameter-optimization-without-scaler",
+        name=run_name,
+        config={}
+    )
+
+# Instantiate model & optimizer training loop
 model = VAE(input_dim)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-# Initializing tracking tool before training starts
+# TOOL 1: Hook into the model layers to watch gradients/weights
+wandb.watch(model, log="all", log_freq=10)
+
+# Initializing early stopping before training starts
 early_stopper = EarlyStopping(patience=5, min_delta=0.001)
 epochs = 1000 
 
@@ -51,11 +71,11 @@ for epoch in range(epochs):
             total_val_loss += val_loss.item()   
     avg_val_loss = total_val_loss / len(test.dataset)
 
-    # 1. Logging both metrics to wandb every single epoch
+    # TOOL 2: Manually log global metrics every epoch
     wandb.log({
         "epoch": current_epoch,
-        "train_loss": avg_train_loss,
-        "val_loss": avg_val_loss
+        "losses/train_loss": avg_train_loss,
+        "losses/val_loss": avg_val_loss
     })
 
     # 2. Printing logs of Train and Valid losses.
