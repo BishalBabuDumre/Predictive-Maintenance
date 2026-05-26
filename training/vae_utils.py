@@ -33,4 +33,4 @@ def batch_loss(model, data, loss_fn, stage_name="Training", epoch_idx=None):
         print(error_msg)
         raise ValueError(f"{stage_name} loss exploded to NaN/Inf.")
         
-    return loss_val
+    return loss
