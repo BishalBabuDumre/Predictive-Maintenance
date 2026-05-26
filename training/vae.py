@@ -46,16 +46,15 @@ wandb.init(
 
 # Instantiate model & optimizer training loop
 model = VAE(input_dim)
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), wandb.config.learning_rate)
 
 # TOOL 1: Hook into the model layers to watch gradients/weights
 wandb.watch(model, log="all", log_freq=10)
 
 # Initializing early stopping before training starts
-early_stopper = EarlyStopping(patience=5, min_delta=0.001)
-epochs = 1000 
+early_stopper = EarlyStopping(wandb.config.patience, wandb.config.min_delta)
 
-for epoch in range(epochs):
+for epoch in range(wandb.config.epochs):
     # ==================== TRAINING PHASE ====================
     model.train()
     total_train_loss = 0
