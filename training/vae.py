@@ -14,9 +14,10 @@ from training.onnx_export import export_and_verify_onnx
 
 best_global_wts = None
 final_input_dim = None
+study = None  # Will be assigned in the main block to allow global context checks
 
 def objective(trial):
-    global best_global_wts, final_input_dim
+    global best_global_wts, final_input_dim, study
     
     latent_dimension = trial.suggest_categorical("latent_dim", [2, 4, 8, 16])
     learning_rate = trial.suggest_float("learning_rate", 1e-4, 1e-2, log=True)
@@ -24,7 +25,6 @@ def objective(trial):
     activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU"])
     dropout = trial.suggest_categorical("dropout", [None, 0.1, 0.2])
     
-    # Suggesting structural architectures (tuples/lists)
     hidden_layers = trial.suggest_categorical("hidden_layers", [
         [32, 16],
         [64, 32],
@@ -43,37 +43,41 @@ def objective(trial):
         "beta": beta                 
     }
     
-    # 2. Available Raw Data
     train_path = os.path.join('data/raw/training_data.csv')
     valid_path = os.path.join('data/raw/validation_data.csv')
     
-    #Loading training data
     df_train, features_train, target_train = prepare_data_frame(train_path)
     train_loader = prepare_vae_data(df_train, features_train, target_train)
     input_dim = len(features_train)
+    final_input_dim = input_dim  # Update global reference
     
-    #Loading validation data
     df_val, features_val, target_val = prepare_data_frame(valid_path)
     val_loader = prepare_vae_data(df_val, features_val, target_val)
     
-    # Initialize the run
+    # FIXED: Fixed double string assignment bug
     run = wandb.init(
-            project="VAE-Anomaly-Detection",
-            job_type="Stage_1-Bottleneck-Sweep",
-            name=f"name=f"Trial-{trial.number}",
-            config=config,
-            reinit=True # CRITICAL: Allows launching multiple runs in one script
-        )
+        project="VAE-Anomaly-Detection",
+        job_type="Stage_1-Bottleneck-Sweep",
+        name=f"Trial-{trial.number}",
+        config=config,
+        reinit=True 
+    )
     
-    # Instantiate model & optimizer training loop
-    model = VAE(input_dim)
-    optimizer = optim.Adam(model.parameters(), wandb.config.learning_rate)
+    # FIXED: Added missing parameters to model configuration initialization
+    model = VAE(
+        input_dim=input_dim,
+        latent_dim=config["latent_dim"],
+        hidden_layers=config["hidden_layers"],
+        activation=config["activation"],
+        dropout=config["dropout"]
+    )
+    optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
     
-    # TOOL 1: Hook into the model layers to watch gradients/weights
     wandb.watch(model, log="all", log_freq=10)
-    
-    # Initializing early stopping before training starts
     early_stopper = EarlyStopping(wandb.config.patience, wandb.config.min_delta)
+    
+    # FIXED: Initialized variable before using it in comparison evaluations
+    best_trial_val_loss = float('inf')
     
     for epoch in range(wandb.config.epochs):
         # ==================== TRAINING PHASE ====================
@@ -81,10 +85,23 @@ def objective(trial):
         total_train_loss = 0
         for train_data, _ in train_loader:
             optimizer.zero_grad()
-            t_loss = batch_loss(model, train_data, vae_loss_function, stage_name="Training", epoch_idx=epoch)
-            total_train_loss += t_loss
-            loss.backward()
+            
+            # FIXED: Wrapped vae_loss_function with lambda to pass the dynamic beta hyperparameter
+            t_loss = batch_loss(
+                model, 
+                train_data, 
+                lambda recon, x, mu, logvar: vae_loss_function(recon, x, mu, logvar, beta=config["beta"]), 
+                stage_name="Training", 
+                epoch_idx=epoch
+            )
+            
+            # FIXED: total_train_loss accumulates using float value (.item()) to prevent tensor tree leak
+            total_train_loss += t_loss.item()
+            
+            # FIXED: backward operates on the dynamic computation graph variable directly
+            t_loss.backward()
             optimizer.step()
+            
         avg_train_loss = total_train_loss / len(train_loader.dataset)
             
         # ==================== VALIDATION PHASE ====================
@@ -92,11 +109,16 @@ def objective(trial):
         total_val_loss = 0
         with torch.no_grad():
             for valid_data, _ in val_loader: 
-                v_loss = batch_loss(model, valid_data, vae_loss_function, stage_name="Validation", epoch_idx=epoch)
-                total_val_loss += v_loss
+                v_loss = batch_loss(
+                    model, 
+                    valid_data, 
+                    lambda recon, x, mu, logvar: vae_loss_function(recon, x, mu, logvar, beta=config["beta"]), 
+                    stage_name="Validation", 
+                    epoch_idx=epoch
+                )
+                total_val_loss += v_loss.item()
         avg_val_loss = total_val_loss / len(val_loader.dataset)
     
-        # TOOL 2: Manually log global metrics every epoch
         wandb.log({
             "epoch": epoch,
             "losses/train_loss": avg_train_loss,
@@ -106,26 +128,21 @@ def objective(trial):
         # Save the trial's best weights in memory
         if avg_val_loss < best_trial_val_loss:
             best_trial_val_loss = avg_val_loss
-            # If this is the best trial overall so far, cache its weights globally
+            # Check if this is the overall historical champion run across trials
             if best_global_wts is None or avg_val_loss < study.best_value:
                 best_global_wts = copy.deepcopy(model.state_dict())
     
-        # Check early stopping thresholds
         early_stopper(avg_val_loss)
         if early_stopper.early_stop:
             print("Early stopping triggered. Training halted.")
             break
 
-        # OPTUNA BONUS: Report intermediate values to allow trial pruning if it looks bad
         trial.report(avg_val_loss, epoch)
         if trial.should_prune():
             run.finish()
             raise optuna.TrialPruned()
 
-    # Close out the current WandB run cleanly before starting the next loop iteration
     run.finish()
-
-    # Optuna minimizes whatever value is returned here
     return best_trial_val_loss
 
 # ==================== MAIN EXECUTION SECTION ====================
@@ -135,24 +152,29 @@ if __name__ == "__main__":
 
     print(f"\n" + "═"*50)
     print(f"🏆 OPTUNA SWEEP COMPLETE 🏆")
-    print(f"Best Trial Hyperparameters: {study.best_params}")
+    print(f"Best Trial Hyperparameters:")
+    for param_name, param_val in study.best_params.items():
+        print(f"  - {param_name}: {param_val}")
     print(f"Best Validation Loss: {study.best_value:.4f}")
     print(f"Exporting the champion model to ONNX...")
     print("═"*50 + "\n")
-    
-    # Recreate the winning architecture using Optuna's tracked champion settings
-    # This completely resolves the problem of parameters getting mixed up across trials!
+
     best_model = VAE(
         input_dim=final_input_dim,
         latent_dim=study.best_params["latent_dim"],
         hidden_layers=study.best_params["hidden_layers"],
-        activation=study.best_params["activation"]
-        # Add any other initialization arguments your VAE class takes here
+        activation=study.best_params["activation"],
+        dropout=study.best_params["dropout"],
+        beta=study.best_params["beta"]  
     )
     
     # Inject the optimal weights we cached during our best objective run
     best_model.load_state_dict(best_global_wts)
     best_model.eval()
     
-    # Export only the single ultimate champion
+    # Optional Production Practice: Log the final winning learning rate alongside the exported asset
+    final_lr = study.best_params["learning_rate"]
+    print(f"ℹ️ Note: Champion model weights were optimized using a learning rate of: {final_lr:.6f}")
+    
+    # Export only the single ultimate champion containing all correct shapes and properties
     export_and_verify_onnx(best_model, final_input_dim)
