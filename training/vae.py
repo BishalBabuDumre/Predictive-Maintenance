@@ -15,7 +15,12 @@ config = {
     "learning_rate": 1e-3,
     "epochs": 1000,
     "patience": 5,
-    "min_delta": 0.001
+    "min_delta": 0.001,
+    "latent_dim": 2,            # Bottleneck Sweep
+    "hidden_layers": [32, 16],  # Layer depth & width combined
+    "activation": "ReLU",       # Layer function
+    "dropout": None             # Dropout Regularization
+    "beta": 0.5                 # Loss scaling factor
 }
 
 # 2. Available Raw Data
@@ -33,9 +38,9 @@ val_loader = prepare_vae_data(df_val, features_val, target_val)
 
 # Initialize the run
 wandb.init(
-        project="vae-anomaly-detection",
-        job_type="hyperparameter-optimization-without-scaler",
-        name=run_name,
+        project="VAE-Anomaly-Detection",
+        job_type=""Stage_1-Bottleneck-Sweep"",
+        name=f"Stage-1_Latent_Dimension-{config['latent_dim']}",
         config={}
     )
 
