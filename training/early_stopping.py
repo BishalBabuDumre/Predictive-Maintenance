@@ -1,6 +1,3 @@
-import torch
-import numpy as np
-
 class EarlyStopping:
     def __init__(self, patience=7, min_delta=0.001):
         self.patience = patience
@@ -9,11 +6,10 @@ class EarlyStopping:
         self.best_loss = None
         self.early_stop = False
 
-    def __call__(self, val_loss, model, save_path="data/model/best_vae.pth"):
+    def __call__(self, val_loss):
         # First epoch setup
         if self.best_loss is None:
             self.best_loss = val_loss
-            self.save_checkpoint(model, save_path)
             
         # If validation loss didn't improve by at least min_delta
         elif val_loss > self.best_loss - self.min_delta:
@@ -25,9 +21,4 @@ class EarlyStopping:
         # If validation loss successfully improved
         else:
             self.best_loss = val_loss
-            self.save_checkpoint(model, save_path)
-            self.counter = 0 # Reset the patience clock
-
-    def save_checkpoint(self, model, save_path):
-        '''Saves model when validation loss decreases.'''
-        torch.save(model.state_dict(), save_path)
+            self.counter = 0  # Reset the patience clock
