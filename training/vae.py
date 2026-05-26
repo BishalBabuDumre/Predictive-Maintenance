@@ -90,4 +90,4 @@ for epoch in range(wandb.config.epochs):
         print("Early stopping triggered. Training halted.")
         break
         
-#export_and_verify_onnx(model, input_dim)
+export_and_verify_onnx(model, input_dim)
