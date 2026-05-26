@@ -18,7 +18,7 @@ config = {
     "min_delta": 0.001,
     "latent_dim": 2,            # Bottleneck Sweep
     "hidden_layers": [32, 16],  # Layer depth & width combined
-    "activation": "ReLU",       # Layer function
+    "activation": "LeakyReLU",  # Layer activation function
     "dropout": None             # Dropout Regularization
     "beta": 0.5                 # Loss scaling factor
 }
