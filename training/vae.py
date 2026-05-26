@@ -19,7 +19,7 @@ config = {
     "latent_dim": 2,            # Bottleneck Sweep
     "hidden_layers": [32, 16],  # Layer depth & width combined
     "activation": "LeakyReLU",  # Layer activation function
-    "dropout": None             # Dropout Regularization
+    "dropout": None,             # Dropout Regularization
     "beta": 0.5                 # Loss scaling factor
 }
 
@@ -39,9 +39,9 @@ val_loader = prepare_vae_data(df_val, features_val, target_val)
 # Initialize the run
 wandb.init(
         project="VAE-Anomaly-Detection",
-        job_type=""Stage_1-Bottleneck-Sweep"",
+        job_type="Stage_1-Bottleneck-Sweep",
         name=f"Stage-1_Latent_Dimension-{config['latent_dim']}",
-        config={}
+        config=config
     )
 
 # Instantiate model & optimizer training loop
@@ -60,7 +60,7 @@ for epoch in range(wandb.config.epochs):
     total_train_loss = 0
     for train_data, _ in train_loader:
         optimizer.zero_grad()
-        total_train_loss += = batch_loss(model, train_data, vae_loss_function, stage_name="Training", epoch_idx=epoch)
+        total_train_loss += batch_loss(model, train_data, vae_loss_function, stage_name="Training", epoch_idx=epoch)
         loss.backward()
         optimizer.step()
     avg_train_loss = total_train_loss / len(train_loader.dataset)
@@ -70,8 +70,8 @@ for epoch in range(wandb.config.epochs):
     total_val_loss = 0
     with torch.no_grad():
         for valid_data, _ in val_loader: 
-            total_val_loss += = batch_loss(model, valid_data, vae_loss_function, stage_name="Validation", epoch_idx=epoch)   
-    avg_val_loss = total_val_loss / len(test.dataset)
+            total_val_loss += batch_loss(model, valid_data, vae_loss_function, stage_name="Validation", epoch_idx=epoch)   
+    avg_val_loss = total_val_loss / len(val_loader.dataset)
 
     # TOOL 2: Manually log global metrics every epoch
     wandb.log({
@@ -85,7 +85,7 @@ for epoch in range(wandb.config.epochs):
         print(f"Epoch [{current_epoch:03d}/{epochs}] | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
     # Check early stopping thresholds
-    early_stopper(avg_val_loss, model)
+    early_stopper(avg_val_loss)
     if early_stopper.early_stop:
         print("Early stopping triggered. Training halted.")
         break
