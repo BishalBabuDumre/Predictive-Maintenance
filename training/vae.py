@@ -60,10 +60,9 @@ for epoch in range(wandb.config.epochs):
     total_train_loss = 0
     for train_data, _ in train_loader:
         optimizer.zero_grad()
-        loss = batch_loss(model, train_data, vae_loss_function, stage_name="Training", epoch_idx=epoch)
+        total_train_loss += = batch_loss(model, train_data, vae_loss_function, stage_name="Training", epoch_idx=epoch)
         loss.backward()
         optimizer.step()
-        total_train_loss += loss.item()     
     avg_train_loss = total_train_loss / len(train_loader.dataset)
         
     # ==================== VALIDATION PHASE ====================
@@ -71,8 +70,7 @@ for epoch in range(wandb.config.epochs):
     total_val_loss = 0
     with torch.no_grad():
         for valid_data, _ in val_loader: 
-            val_loss = batch_loss(model, valid_data, vae_loss_function, stage_name="Validation", epoch_idx=epoch)
-            total_val_loss += val_loss.item()   
+            total_val_loss += = batch_loss(model, valid_data, vae_loss_function, stage_name="Validation", epoch_idx=epoch)   
     avg_val_loss = total_val_loss / len(test.dataset)
 
     # TOOL 2: Manually log global metrics every epoch
