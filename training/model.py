@@ -2,9 +2,10 @@ import torch
 import torch.nn as nn
 
 class VAE(nn.Module):
-    def __init__(self, input_dim, latent_dim=4, hidden_layers=[32, 16], activation="LeakyReLU"):
+    def __init__(self, input_dim, latent_dim=4, hidden_layers=[32, 16], activation="LeakyReLU", dropout=None, beta=1.0):
         super(VAE, self).__init__()
-        
+
+        self.beta = beta
         # Map activation strings to PyTorch modules
         activation_map = {
             "ReLU": nn.ReLU,
@@ -20,6 +21,9 @@ class VAE(nn.Module):
         for h_dim in hidden_layers:
             encoder_modules.append(nn.Linear(current_dim, h_dim))
             encoder_modules.append(act_fn())
+            # NEW: Add dropout if configured
+            if dropout is not None:
+                encoder_modules.append(nn.Dropout(dropout))
             current_dim = h_dim
             
         self.encoder = nn.Sequential(*encoder_modules)
@@ -35,6 +39,9 @@ class VAE(nn.Module):
         for h_dim in reversed(hidden_layers):
             decoder_modules.append(nn.Linear(current_dim, h_dim))
             decoder_modules.append(act_fn())
+            # NEW: Add dropout if configured
+            if dropout is not None:
+                decoder_modules.append(nn.Dropout(dropout))
             current_dim = h_dim
             
         decoder_modules.append(nn.Linear(current_dim, input_dim))
@@ -53,7 +60,6 @@ class VAE(nn.Module):
 
 # FIXED: Integrated the beta scaling factor directly into the loss calculation
 def vae_loss_function(recon_x, x, mu, logvar, beta=1.0):
-    # Mean Squared Error structure remains identical to variance scaling for structural loss optimization
     MSE = nn.functional.mse_loss(recon_x, x, reduction='sum')
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     return MSE + (beta * KLD)
