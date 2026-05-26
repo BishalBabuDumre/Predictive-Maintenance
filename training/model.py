@@ -7,9 +7,9 @@ class VAE(nn.Module):
         # Encoder
         self.encoder = nn.Sequential(
             nn.Linear(input_dim, 32),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(32, 16),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
         self.fc_mu = nn.Linear(16, latent_dim)
         self.fc_logvar = nn.Linear(16, latent_dim)
@@ -17,9 +17,9 @@ class VAE(nn.Module):
         # Decoder
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, 16),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(16, 32),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(32, input_dim)
         )
 
