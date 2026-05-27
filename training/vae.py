@@ -26,9 +26,9 @@ def objective(trial):
     activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU", "Tanh"])
     dropout = trial.suggest_categorical("dropout", [None, 0.1, 0.2])
     hidden_layers = trial.suggest_categorical("hidden_layers", [
-        [32, 16],
-        [64, 32],
-        [64, 32, 16]
+        (32, 16),
+        (64, 32),
+        (64, 32, 16)
     ])
     
     config = {
@@ -127,10 +127,7 @@ def objective(trial):
     
         # Save the trial's best weights in memory
         if avg_val_loss < best_trial_val_loss:
-            best_trial_val_loss = avg_val_loss
-            # Check if this is the overall historical champion run across trials
-            if best_global_wts is None or avg_val_loss < study.best_value:
-                best_global_wts = copy.deepcopy(model.state_dict())
+            best_global_wts = copy.deepcopy(model.state_dict())
     
         early_stopper(avg_val_loss)
         if early_stopper.early_stop:
