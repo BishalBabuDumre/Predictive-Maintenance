@@ -22,7 +22,7 @@ def objective(trial):
     latent_dimension = trial.suggest_categorical("latent_dim", [2, 4, 8, 16])
     learning_rate = trial.suggest_float("learning_rate", 1e-4, 1e-2, log=True)
     beta = trial.suggest_float("beta", 0.1, 1.0, step=0.1)
-    activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU"])
+    activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU", "Tanh"])
     dropout = trial.suggest_categorical("dropout", [None, 0.1, 0.2])
     
     hidden_layers = trial.suggest_categorical("hidden_layers", [
