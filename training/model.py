@@ -2,11 +2,8 @@ import torch
 import torch.nn as nn
 
 class VAE(nn.Module):
-    def __init__(self, input_dim, latent_dim=4, hidden_layers=[32, 16], activation="LeakyReLU", dropout=None, beta=1.0):
+    def __init__(self, input_dim, latent_dim=4, hidden_layers=[32, 16], activation="LeakyReLU", dropout=None):
         super(VAE, self).__init__()
-
-        self.beta = beta
-        # Map activation strings to PyTorch modules
         activation_map = {
             "ReLU": nn.ReLU,
             "LeakyReLU": nn.LeakyReLU,
