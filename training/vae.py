@@ -12,7 +12,6 @@ from training.feature_engineering import prepare_data_frame
 from training.early_stopping import EarlyStopping
 from training.onnx_export import export_and_verify_onnx
 
-best_global_wts = None
 final_input_dim = None
 study = None  # Will be assigned in the main block to allow global context checks
 
@@ -128,7 +127,8 @@ def objective(trial):
         # Save the trial's best weights in memory
         if avg_val_loss < best_trial_val_loss:
             best_trial_val_loss = avg_val_loss
-            best_global_wts = copy.deepcopy(model.state_dict())
+            os.makedirs("checkpoints", exist_ok=True)
+            torch.save(model.state_dict(), f"checkpoints/trial_{trial.number}.pt")
     
         early_stopper(avg_val_loss)
         if early_stopper.early_stop:
@@ -166,7 +166,8 @@ if __name__ == "__main__":
     )
     
     # Inject the optimal weights we cached during our best objective run
-    best_model.load_state_dict(best_global_wts)
+    best_trial_num = study.best_trial.number
+    best_model.load_state_dict(torch.load(f"checkpoints/trial_{best_trial_num}.pt"))
     best_model.eval()
     
     # Optional Production Practice: Log the final winning learning rate alongside the exported asset
@@ -175,3 +176,9 @@ if __name__ == "__main__":
     
     # Export only the single ultimate champion containing all correct shapes and properties
     export_and_verify_onnx(best_model, final_input_dim)
+
+    # Optional cleanup: Clean up the checkpoint files if you don't want them cluttering your workspace
+    for t in study.trials:
+        cp_path = f"checkpoints/trial_{t.number}.pt"
+        if os.path.exists(cp_path) and t.number != best_trial_num:
+            os.remove(cp_path)
