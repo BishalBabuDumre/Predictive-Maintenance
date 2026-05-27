@@ -24,5 +24,7 @@ def generate_and_save_scalers(train_csv_path, output_dir="data/model"):
     print(f"Success! Scaler saved to: {scaler_path}")
 
 if __name__ == "__main__":
-    TRAIN_DATA_PATH = "data/raw/training_data.csv" 
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    REPO_ROOT = os.path.dirname(BASE_DIR) 
+    TRAIN_DATA_PATH = os.path.join(REPO_ROOT, "data", "raw", "training_data.csv")
     generate_and_save_scalers(TRAIN_DATA_PATH)
