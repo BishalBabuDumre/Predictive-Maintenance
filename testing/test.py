@@ -100,7 +100,7 @@ def evaluate_pipeline(data_source, onnx_model_path="data/model/vae_model.onnx", 
 
 if __name__ == "__main__":
     # Define paths
-    clean_file_path = "testing/500_rows.csv"  # Swap out for your half-year file path
+    clean_file_path = "data/raw/testing_data.csv"  # Swap out for your half-year file path
     onnx_path = "data/model/vae_model.onnx"
     scaler_path = "data/model/scaler_x.pkl"
     
