@@ -66,10 +66,12 @@ def objective(trial):
     # FIXED: Added missing parameters to model configuration initialization
     model = VAE(
         input_dim=input_dim,
-        latent_dim=config["latent_dim"],
-        hidden_layers=config["hidden_layers"],
-        activation=config["activation"],
-        dropout=config["dropout"]
+        latent_dim=wandb.config.latent_dim,
+        hidden_layers=wandb.config.hidden_layers,
+        activation=wandb.config.activation,
+        dropout=wandb.config.dropout,
+        beta = wandb.config.beta,
+        learning_rate = wandb.config.learning_rate
     )
     optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
     
