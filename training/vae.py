@@ -127,6 +127,7 @@ def objective(trial):
     
         # Save the trial's best weights in memory
         if avg_val_loss < best_trial_val_loss:
+            best_trial_val_loss = avg_val_loss
             best_global_wts = copy.deepcopy(model.state_dict())
     
         early_stopper(avg_val_loss)
