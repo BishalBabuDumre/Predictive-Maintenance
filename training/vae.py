@@ -169,6 +169,7 @@ if __name__ == "__main__":
     
     # Inject the optimal weights we cached during our best objective run
     best_model.load_state_dict(best_global_wts)
+    best_model.eval()
     
     # Optional Production Practice: Log the final winning learning rate alongside the exported asset
     final_lr = study.best_params["learning_rate"]
