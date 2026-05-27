@@ -69,8 +69,7 @@ def objective(trial):
         latent_dim=wandb.config.latent_dim,
         hidden_layers=wandb.config.hidden_layers,
         activation=wandb.config.activation,
-        dropout=wandb.config.dropout,
-        beta = wandb.config.beta
+        dropout=wandb.config.dropout
     )
     optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
     
