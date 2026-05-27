@@ -148,11 +148,11 @@ def objective(trial):
 # ==================== MAIN EXECUTION SECTION ====================
 if __name__ == "__main__":
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=10)
+    study.optimize(objective, n_trials=30)
 
     print(f"\n" + "═"*50)
-    print(f"🏆 OPTUNA SWEEP COMPLETE 🏆")
-    print(f"Best Trial Hyperparameters:")
+    print("OPTUNA SWEEP COMPLETE")
+    print("Best Trial Hyperparameters:")
     for param_name, param_val in study.best_params.items():
         print(f"  - {param_name}: {param_val}")
     print(f"Best Validation Loss: {study.best_value:.4f}")
@@ -164,17 +164,15 @@ if __name__ == "__main__":
         latent_dim=study.best_params["latent_dim"],
         hidden_layers=study.best_params["hidden_layers"],
         activation=study.best_params["activation"],
-        dropout=study.best_params["dropout"],
-        beta=study.best_params["beta"]  
+        dropout=study.best_params["dropout"]
     )
     
     # Inject the optimal weights we cached during our best objective run
     best_model.load_state_dict(best_global_wts)
-    best_model.eval()
     
     # Optional Production Practice: Log the final winning learning rate alongside the exported asset
     final_lr = study.best_params["learning_rate"]
-    print(f"ℹ️ Note: Champion model weights were optimized using a learning rate of: {final_lr:.6f}")
+    print(f"Note: Champion model weights were optimized using a learning rate of: {final_lr:.6f}")
     
     # Export only the single ultimate champion containing all correct shapes and properties
     export_and_verify_onnx(best_model, final_input_dim)
