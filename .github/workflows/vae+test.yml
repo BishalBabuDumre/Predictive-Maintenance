@@ -35,7 +35,9 @@ jobs:
 
     # 5. Train the VAE model and export a fresh, self-contained ONNX file
     - name: Train and Export VAE Model
-      run: python training/vae.py
+      env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      run: python -m training.vae
 
     # 6. Run the test script (It will now successfully find the fresh files!)
     - name: Run Integration Tests
