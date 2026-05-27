@@ -1,14 +1,14 @@
 import math
 from training.model import vae_loss_function
 
-def batch_loss(model, data, loss_fn, stage_name="Training", epoch_idx=None):
+def batch_loss(model, data, beta, stage_name="Training", epoch_idx=None):
     """
     Processes a single batch for a VAE (Forward pass + Loss evaluation + Stability check).
     
     Args:
         model: The VAE model instance.
         data: The input tensor for this batch.
-        loss_fn: The VAE loss function.
+        beta: The factor that weighs KLD VS MSE.
         stage_name (str): "Training" or "Validation" (used for error reporting).
         epoch_idx (int): Optional current epoch index for better logs.
     
@@ -19,7 +19,7 @@ def batch_loss(model, data, loss_fn, stage_name="Training", epoch_idx=None):
     recon_batch, mu, logvar = model(data)
     
     # 2. Compute VAE loss
-    loss = vae_loss_function(recon_batch, data, mu, logvar)
+    loss = vae_loss_function(recon_batch, data, mu, logvar, beta)
     
     # 3. Aggressive stability check (Triggers for both training and validation)
     loss_val = loss.item()
