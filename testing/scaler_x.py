@@ -24,5 +24,5 @@ def generate_and_save_scalers(train_csv_path, output_dir="data/model"):
     print(f"Success! Scaler saved to: {scaler_path}")
 
 if __name__ == "__main__":
-    TRAIN_DATA_PATH = "data/raw/original.csv" 
+    TRAIN_DATA_PATH = "data/raw/training_data.csv" 
     generate_and_save_scalers(TRAIN_DATA_PATH)
