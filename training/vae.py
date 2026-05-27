@@ -18,13 +18,13 @@ study = None  # Will be assigned in the main block to allow global context check
 
 def objective(trial):
     global best_global_wts, final_input_dim, study
-    
+
+    #Variables being optimized!!!
     latent_dimension = trial.suggest_categorical("latent_dim", [2, 4, 8, 16])
     learning_rate = trial.suggest_float("learning_rate", 1e-4, 1e-2, log=True)
     beta = trial.suggest_float("beta", 0.1, 1.0, step=0.1)
     activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU", "Tanh"])
     dropout = trial.suggest_categorical("dropout", [None, 0.1, 0.2])
-    
     hidden_layers = trial.suggest_categorical("hidden_layers", [
         [32, 16],
         [64, 32],
@@ -57,7 +57,7 @@ def objective(trial):
     # FIXED: Fixed double string assignment bug
     run = wandb.init(
         project="VAE-Anomaly-Detection",
-        job_type="Stage_1-Bottleneck-Sweep",
+        job_type="Hyperparameters-Tuning",
         name=f"Trial-{trial.number}",
         config=config,
         reinit=True 
@@ -89,8 +89,8 @@ def objective(trial):
             # FIXED: Wrapped vae_loss_function with lambda to pass the dynamic beta hyperparameter
             t_loss = batch_loss(
                 model, 
-                train_data, 
-                lambda recon, x, mu, logvar: vae_loss_function(recon, x, mu, logvar, beta=config["beta"]), 
+                train_data,
+                beta=wandb.config.beta,
                 stage_name="Training", 
                 epoch_idx=epoch
             )
@@ -112,7 +112,7 @@ def objective(trial):
                 v_loss = batch_loss(
                     model, 
                     valid_data, 
-                    lambda recon, x, mu, logvar: vae_loss_function(recon, x, mu, logvar, beta=config["beta"]), 
+                    beta=wandb.config.beta,
                     stage_name="Validation", 
                     epoch_idx=epoch
                 )
