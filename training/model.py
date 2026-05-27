@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class VAE(nn.Module):
-    def __init__(self, input_dim, latent_dim=4, hidden_layers=[32, 16], activation="LeakyReLU", dropout=None, beta=1.0, learning_rate = 0.001):
+    def __init__(self, input_dim, latent_dim=4, hidden_layers=[32, 16], activation="LeakyReLU", dropout=None, beta=1.0):
         super(VAE, self).__init__()
 
         self.beta = beta
