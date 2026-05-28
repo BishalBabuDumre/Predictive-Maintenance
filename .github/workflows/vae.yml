@@ -52,7 +52,10 @@ jobs:
           if ! git diff --cached --quiet; then
             echo "Changes detected in the model. Committing and pushing..."
             git commit -m "chore: update trained VAE model weights [skip ci]"
-            git push origin HEAD:${{ github.ref }}
+            git push origin HEAD:${{ github.ref }} --rebase
+
+          # 4. Push the clean, rebased history back up
+          git push origin HEAD:${{ github.ref }}
           else
             echo "No changes detected in the model file. Skipping push."
           fi
