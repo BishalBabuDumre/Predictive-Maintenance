@@ -109,7 +109,10 @@ if __name__ == "__main__":
     
     # Print clean benchmark
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
-    print(f"Baseline Median Loss: {df_clean_results['Reconstruction_Loss'].median():.6f}")
+    clean_losses = df_clean_results['Reconstruction_Loss'].values
+    med = np.median(clean_losses)
+    mad = np.median(np.abs(clean_losses - med))
+    print(f"Production Configuration -> Median: {med:.6f}, MAD: {mad:.6f}")
     
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
