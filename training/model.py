@@ -16,7 +16,7 @@ class VAE(nn.Module):
         encoder_modules = []
         current_dim = input_dim
         for h_dim in hidden_layers.split(","):
-            encoder_modules.append(nn.Linear(current_dim, h_dim))
+            encoder_modules.append(nn.Linear(current_dim, int(h_dim))
             encoder_modules.append(act_fn())
             # NEW: Add dropout if configured
             if dropout is not None:
