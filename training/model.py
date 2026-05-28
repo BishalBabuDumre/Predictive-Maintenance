@@ -15,7 +15,7 @@ class VAE(nn.Module):
         # --- Dynamic Encoder Construction ---
         encoder_modules = []
         current_dim = input_dim
-        for h_dim in hidden_layers:
+        for h_dim in hidden_layers.split(","):
             encoder_modules.append(nn.Linear(current_dim, h_dim))
             encoder_modules.append(act_fn())
             # NEW: Add dropout if configured
