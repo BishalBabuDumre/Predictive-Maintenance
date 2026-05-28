@@ -4,6 +4,7 @@ import pandas as pd
 import onnxruntime as ort
 import joblib
 from training.feature_engineering import prepare_data_frame
+from testing.fill_missing import production_impute_temperature
 
 def inject_edge_cases(df_clean):
     """
@@ -68,10 +69,9 @@ def evaluate_pipeline(data_source, onnx_model_path="data/model/vae_model.onnx", 
     
     if df["DateTime"].dt.tz is not None:
         df["DateTime"] = df["DateTime"].dt.tz_localize(None)
-        
-    # Drop any remaining unhandled NaNs after feature engineering to keep ONNX stable
-    valid_mask = ~df[features].isnull().any(axis=1)
-    df_valid = df[valid_mask].copy()
+
+    #Calling imputation function to fill NaNs
+    df_valid = production_impute_temperature(df)
     
     if df_valid.empty:
         raise ValueError("No valid rows left to evaluate after feature engineering. Check imputation logic.")
