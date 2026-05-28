@@ -25,9 +25,9 @@ def objective(trial):
     activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU", "Tanh"])
     dropout = trial.suggest_categorical("dropout", [None, 0.1, 0.2])
     hidden_layers = trial.suggest_categorical("hidden_layers", [
-        [32, 16],
-        [64, 32],
-        [64, 32, 16]
+        "32,16",
+        "64,32",
+        "64,32,16"
     ])
     
     config = {
