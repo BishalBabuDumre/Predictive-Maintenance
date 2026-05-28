@@ -3,6 +3,7 @@ import copy
 import wandb
 import torch
 import optuna
+import onnxruntime as ort
 import torch.optim as optim
 from training.model import VAE
 from training.model import vae_loss_function
@@ -19,15 +20,15 @@ def objective(trial):
     global best_global_wts, final_input_dim, study
 
     #Variables being optimized!!!
-    latent_dimension = trial.suggest_categorical("latent_dim", [2, 4, 8, 16])
     learning_rate = trial.suggest_float("learning_rate", 1e-4, 1e-2, log=True)
-    beta = trial.suggest_float("beta", 0.1, 1.0, step=0.1)
     activation = trial.suggest_categorical("activation", ["ReLU", "LeakyReLU", "ELU", "Tanh"])
     dropout = trial.suggest_categorical("dropout", [None, 0.1, 0.2])
     hidden_layers = trial.suggest_categorical("hidden_layers", [
-        [32, 16],
-        [64, 32],
-        [64, 32, 16]
+        [16],              # 1 Hidden Layer (Very shallow/customary)
+        [32],              # 1 Hidden Layer (Slightly wider)
+        [32, 16],          # 2 Hidden Layers (Medium depth)
+        [64, 32],          # 2 Hidden Layers (Wide)
+        [64, 32, 16]       # 3 Hidden Layers (Deep predictive network)
     ])
     
     config = {
@@ -35,27 +36,33 @@ def objective(trial):
         "epochs": 1000,
         "patience": 5,
         "min_delta": 0.001,
-        "latent_dim": latent_dimension,
+        "latent_dim": 1,
         "hidden_layers": hidden_layers,  
         "activation": activation,  
-        "dropout": dropout,             
-        "beta": beta                 
+        "dropout": dropout             
     }
     
     train_path = os.path.join('data/raw/training_data.csv')
     valid_path = os.path.join('data/raw/validation_data.csv')
     
     df_train, features_train, target_train = prepare_data_frame(train_path)
-    train_loader = prepare_vae_data(df_train, features_train, target_train)
-    input_dim = len(features_train)
+    
+    # Run the ONNX Inference Session
+    onnx_model_path = "data/model/vae_model.onnx"
+    ort_session = ort.InferenceSession(onnx_model_path)
+    ort_inputs = {'input': features_train.values.astype(np.float32)}
+    _, mu, _ = ort_session.run(None, ort_inputs)
+    # Target value from dataframes
+    y_values = target_train.values.astype(np.float32)
+    
+    input_dim = len(mu)
     final_input_dim = input_dim  # Update global reference
     
     df_val, features_val, target_val = prepare_data_frame(valid_path)
-    val_loader = prepare_vae_data(df_val, features_val, target_val)
     
     # FIXED: Fixed double string assignment bug
     run = wandb.init(
-        project="VAE-Anomaly-Detection",
+        project="Temperature_Forecasting",
         job_type="Hyperparameters-Tuning",
         name=f"Trial-{trial.number}",
         config=config,
@@ -65,7 +72,7 @@ def objective(trial):
     # FIXED: Added missing parameters to model configuration initialization
     model = VAE(
         input_dim=input_dim,
-        latent_dim=wandb.config.latent_dim,
+        latent_dim=1,
         hidden_layers=wandb.config.hidden_layers,
         activation=wandb.config.activation,
         dropout=wandb.config.dropout
