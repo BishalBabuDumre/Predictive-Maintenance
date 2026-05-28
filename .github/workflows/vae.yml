@@ -34,6 +34,8 @@ jobs:
           pip install -r requirements_training.txt
 
       - name: Run Python script
+        env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
         run: |
           python -m training.vae
 
