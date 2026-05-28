@@ -2,6 +2,10 @@ name: Variational Auto-Encoder
 on:
   workflow_dispatch: # Allows to run it manually for testing
 
+concurrency:
+  group: vae-training
+  cancel-in-progress: false  # or true if you want newer runs to win
+
 permissions:
   contents: write
 
@@ -44,9 +48,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Track both your fresh scaler and the self-contained ONNX model
           git add .gitattributes
           git add data/model/scaler_x.pkl data/model/vae_model.onnx
           
-          # Only commit if something actually changed; [skip ci] prevents an infinite build loop
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update trained VAE model and scaler [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (
+            git commit -m "chore: update trained VAE model and scaler [skip ci]" &&
+            git pull --rebase origin main &&
+            git push
+          )
