@@ -42,29 +42,13 @@ def objective(trial):
     
     train_path = os.path.join('data/raw/training_data.csv')
     valid_path = os.path.join('data/raw/validation_data.csv')
-    
-    # Run the ONNX Inference Session
     onnx_model_path = "data/model/vae_model.onnx"
-    ort_session = ort.InferenceSession(onnx_model_path)
 
-    # Input data as intermediate mean vector coming from encoder part of VAE
-    df_train, features_train, target_train = prepare_data_frame(train_path)
-    ort_inputs_train = {'input': df_train[features_train].values.astype(np.float32)}
-    _, mu_train, _ = ort_session.run(None, ort_inputs_train)
-    df_train["mu"] = list(mu_train)
-    features_train = ["mu"]
-    train_loader = prepare_vae_data(df_train, features_train, target_train)
     
-    input_dim = len(mu)
+    train_loader, input_dim = extract_latent_dataset(train_path, onnx_model_path)
+    val_loader, _ = prepare_vae_data(valid_path, onnx_model_path)
+    
     final_input_dim = input_dim  # Update global reference
-
-    # Validation Input
-    df_val, features_val, target_val = prepare_data_frame(valid_path)
-    ort_inputs_val = {'input': df_val[features_val].values.astype(np.float32)}
-    _, mu_val, _ = ort_session.run(None, ort_inputs_val)
-    df_val["mu"] = mu_val
-    features_val = ["mu"]
-    val_loader = prepare_vae_data(df_val, features_val, target_val)
     
     # FIXED: Fixed double string assignment bug
     run = wandb.init(
