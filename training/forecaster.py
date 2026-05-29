@@ -1,13 +1,10 @@
 import os
-import copy
 import wandb
 import torch
 import optuna
 import onnxruntime as ort
 import torch.optim as optim
 from training.model import VAE
-from training.model import vae_loss_function
-from training.vae_utils import batch_loss
 from training.data_preparation import prepare_vae_data
 from training.feature_engineering import prepare_data_frame
 from training.early_stopping import EarlyStopping
