@@ -1,4 +1,4 @@
-name: Variational Auto-Encoder
+name: Temperature Forecaster
 on:
   workflow_dispatch: # Allows to run it manually for testing
 
