@@ -45,20 +45,28 @@ def objective(trial):
     train_path = os.path.join('data/raw/training_data.csv')
     valid_path = os.path.join('data/raw/validation_data.csv')
     
-    df_train, features_train, target_train = prepare_data_frame(train_path)
-    
     # Run the ONNX Inference Session
     onnx_model_path = "data/model/vae_model.onnx"
     ort_session = ort.InferenceSession(onnx_model_path)
-    ort_inputs = {'input': features_train.values.astype(np.float32)}
-    _, mu, _ = ort_session.run(None, ort_inputs)
-    # Target value from dataframes
-    y_values = target_train.values.astype(np.float32)
+
+    # Input data as intermediate mean vector coming from encoder part of VAE
+    df_train, features_train, target_train = prepare_data_frame(train_path)
+    ort_inputs_train = {'input': df_train[features_train].values.astype(np.float32)}
+    _, mu_train, _ = ort_session.run(None, ort_inputs_train)
+    df_train["mu"] = mu_train
+    features_train = ["mu"]
+    train_loader = prepare_vae_data(df_train, features_train, target_train)
     
     input_dim = len(mu)
     final_input_dim = input_dim  # Update global reference
-    
+
+    # Validation Input
     df_val, features_val, target_val = prepare_data_frame(valid_path)
+    ort_inputs_val = {'input': df_val[features_val].values.astype(np.float32)}
+    _, mu_val, _ = ort_session.run(None, ort_inputs_val)
+    df_val["mu"] = mu_val
+    features_val = ["mu"]
+    val_loader = prepare_vae_data(df_val, features_val, target_val)
     
     # FIXED: Fixed double string assignment bug
     run = wandb.init(
@@ -78,7 +86,7 @@ def objective(trial):
         dropout=wandb.config.dropout
     )
     optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
-    
+    criterion = nn.MSELoss()
     wandb.watch(model, log="all", log_freq=10)
     early_stopper = EarlyStopping(wandb.config.patience, wandb.config.min_delta)
     
@@ -89,22 +97,11 @@ def objective(trial):
         # ==================== TRAINING PHASE ====================
         model.train()
         total_train_loss = 0
-        for train_data, _ in train_loader:
+        for train_data, train_target in train_loader:
             optimizer.zero_grad()
-            
-            # FIXED: Wrapped vae_loss_function with lambda to pass the dynamic beta hyperparameter
-            t_loss = batch_loss(
-                model, 
-                train_data,
-                beta=wandb.config.beta,
-                stage_name="Training", 
-                epoch_idx=epoch
-            )
-            
-            # FIXED: total_train_loss accumulates using float value (.item()) to prevent tensor tree leak
+            recon_batch, predictions, logvar = model(train_data)
+            t_loss = criterion(predictions, train_target, reduction='sum')
             total_train_loss += t_loss.item()
-            
-            # FIXED: backward operates on the dynamic computation graph variable directly
             t_loss.backward()
             optimizer.step()
             
@@ -114,14 +111,9 @@ def objective(trial):
         model.eval() 
         total_val_loss = 0
         with torch.no_grad():
-            for valid_data, _ in val_loader: 
-                v_loss = batch_loss(
-                    model, 
-                    valid_data, 
-                    beta=wandb.config.beta,
-                    stage_name="Validation", 
-                    epoch_idx=epoch
-                )
+            for valid_data, valid_target in val_loader: 
+                recon_batch, predictions, logvar = model(valid_data)
+                v_loss = criterion(predictions, valid_target, reduction='sum')
                 total_val_loss += v_loss.item()
         avg_val_loss = total_val_loss / len(val_loader.dataset)
     
@@ -166,7 +158,7 @@ if __name__ == "__main__":
 
     best_model = VAE(
         input_dim=final_input_dim,
-        latent_dim=study.best_params["latent_dim"],
+        latent_dim=1,
         hidden_layers=study.best_params["hidden_layers"],
         activation=study.best_params["activation"],
         dropout=study.best_params["dropout"]
@@ -182,7 +174,7 @@ if __name__ == "__main__":
     print(f"Note: Champion model weights were optimized using a learning rate of: {final_lr:.6f}")
     
     # Export only the single ultimate champion containing all correct shapes and properties
-    export_and_verify_onnx(best_model, final_input_dim)
+    export_and_verify_onnx(best_model, final_input_dim, file_name="forecast_model.onnx")
 
     # Optional cleanup: Clean up the checkpoint files if you don't want them cluttering your workspace
     for t in study.trials:
