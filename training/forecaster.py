@@ -70,7 +70,7 @@ def objective(trial):
         dropout=wandb.config.dropout
     )
     optimizer = optim.Adam(model.parameters(), lr=wandb.config.learning_rate)
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss(reduction='sum')
     wandb.watch(model, log="all", log_freq=10)
     early_stopper = EarlyStopping(wandb.config.patience, wandb.config.min_delta)
     
@@ -84,7 +84,7 @@ def objective(trial):
         for train_data, train_target in train_loader:
             optimizer.zero_grad()
             recon_batch, predictions, logvar = model(train_data)
-            t_loss = criterion(predictions, train_target, reduction='sum')
+            t_loss = criterion(predictions, train_target)
             total_train_loss += t_loss.item()
             t_loss.backward()
             optimizer.step()
