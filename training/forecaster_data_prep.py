@@ -1,7 +1,9 @@
 import numpy as np
+import pandas as pd
+import onnxruntime as ort
 from training.feature_engineering import prepare_data_frame
 
-def extract_latent_dataset(csv_path, onnx_model_path, batch_size=64):
+def extract_latent_dataset(csv_path, onnx_model_path):
     """
     Passes data through the static frozen ONNX VAE to generate a clean, 
     unsupervised tensor dataset ready for downstream forecasting.
@@ -15,9 +17,10 @@ def extract_latent_dataset(csv_path, onnx_model_path, batch_size=64):
     
     # Match the output names specified in your original torch.onnx.export step
     _, mu, _ = ort_session.run(None, ort_inputs)
-    df_train["mu"] = list(mu_train)
-    features_train = ["mu"]
-    train_loader = prepare_vae_data(df_train, features_train, target_train)
+    mu_df = pd.DataFrame(mu, columns=[f'feature_{i}' for i in range(8)])
+    df_new = pd.concat([df, mu_df], axis=1)
+    features_new = [f'feature_{i}' for i in range(8)]
+    loader = prepare_vae_data(df_new, features_new, target, scaler_y_name = "scaler_y_forecaster")
 
     
-    return loader, mu.shape[1] # Returns the data loader and the VAE's latent dimension size
+    return loader, mu.shape[1]
