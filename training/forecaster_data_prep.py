@@ -13,7 +13,7 @@ def extract_latent_dataset(csv_path, onnx_model_path):
     
     # Run the ONNX Inference Session
     ort_session = ort.InferenceSession(onnx_model_path)
-    ort_inputs = {'input': features.values.astype(np.float32)}
+    ort_inputs = {'input': df[features].values.astype(np.float32)}
     
     # Match the output names specified in your original torch.onnx.export step
     _, mu, _ = ort_session.run(None, ort_inputs)
