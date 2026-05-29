@@ -2,6 +2,7 @@ import os
 import wandb
 import torch
 import optuna
+import numpy as np
 import onnxruntime as ort
 import torch.optim as optim
 from training.model import VAE
