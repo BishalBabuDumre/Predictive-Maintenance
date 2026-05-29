@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 def production_impute_temperature(file_input, target_col='Temperature(F)', max_forward_fill=3):
-    print(f"missing values. Executing imputation layers...", flush=True)
+    print(f"missing values. Executing imputation layers...")
 
     """
     Production-grade imputation pipeline for real-time streaming data frames.
