@@ -21,6 +21,6 @@ def extract_latent_dataset(csv_path, onnx_model_path):
     tar_df = df[target]
     df_new = pd.concat([tar_df, mu_df], axis=1)
     features_new = [f'feature_{i}' for i in range(8)]
-    loader = prepare_vae_data(df_new, features_new, target, scaler_y_name = "scaler_y_forecaster")
+    loader = prepare_vae_data(df_new, features_new, target, scaler_y_name = "scaler_y_forecaster.pkl")
     
     return loader, mu.shape[1]
