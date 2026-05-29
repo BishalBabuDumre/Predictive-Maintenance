@@ -87,7 +87,7 @@ def evaluate_pipeline(data_source, onnx_model_path="data/model/vae_model.onnx", 
     # 4. Batch Inference over all Timestamps
     onnx_inputs = {session.get_inputs()[0].name: X_scaled}
     recon_x, mu, logvar = session.run(None, onnx_inputs)
-    print(len(mu), len(X_raw))
+    print(len(mu), len(X_raw), len(df_valid[target]))
     # 5. Calculate Vectorized Reconstruction Loss per row
     # Vectorized calculation: Mean Square Error along axis 1 (features)
     losses = np.mean((recon_x - X_scaled) ** 2, axis=1)
