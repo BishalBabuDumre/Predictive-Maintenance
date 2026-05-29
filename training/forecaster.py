@@ -47,7 +47,7 @@ def objective(trial):
 
     
     train_loader, input_dim = extract_latent_dataset(train_path, onnx_model_path)
-    val_loader, _ = prepare_vae_data(valid_path, onnx_model_path)
+    val_loader, _ = extract_latent_dataset(valid_path, onnx_model_path)
     
     final_input_dim = input_dim  # Update global reference
     
