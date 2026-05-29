@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import onnxruntime as ort
 from training.feature_engineering import prepare_data_frame
+from training.data_preparation import prepare_vae_data
 
 def extract_latent_dataset(csv_path, onnx_model_path):
     """
