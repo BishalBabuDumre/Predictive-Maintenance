@@ -18,9 +18,9 @@ def extract_latent_dataset(csv_path, onnx_model_path):
     # Match the output names specified in your original torch.onnx.export step
     _, mu, _ = ort_session.run(None, ort_inputs)
     mu_df = pd.DataFrame(mu, columns=[f'feature_{i}' for i in range(8)])
-    df_new = pd.concat([df, mu_df], axis=1)
+    tar_df = df[target]
+    df_new = pd.concat([tar_df, mu_df], axis=1)
     features_new = [f'feature_{i}' for i in range(8)]
     loader = prepare_vae_data(df_new, features_new, target, scaler_y_name = "scaler_y_forecaster")
-
     
     return loader, mu.shape[1]
