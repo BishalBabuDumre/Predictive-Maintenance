@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def production_impute_temperature(df, target_col='Temperature(F)', max_forward_fill=3):
+def production_impute_temperature(file_input, target_col='Temperature(F)', max_forward_fill=3):
     print(f"missing values. Executing imputation layers...", flush=True)
 
     """
@@ -9,6 +9,13 @@ def production_impute_temperature(df, target_col='Temperature(F)', max_forward_f
     Stresses resilience: handles short sensor drops gracefully without breaking 
     historical rolling lookback alignments.
     """
+
+    if isinstance(file_input, str):
+        df = pd.read_csv(file_input, parse_dates=["DateTime"])
+    else:
+        df = file_input.copy() # Keeps original dataframe pristine
+        df["DateTime"] = pd.to_datetime(df["DateTime"]) # Ensure correct type
+        
     df_imputed = df.copy()
     
     # Ensure dataframe is sorted by time before doing any directional imputation
