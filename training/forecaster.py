@@ -97,7 +97,7 @@ def objective(trial):
         with torch.no_grad():
             for valid_data, valid_target in val_loader: 
                 recon_batch, predictions, logvar = model(valid_data)
-                v_loss = criterion(predictions, valid_target, reduction='sum')
+                v_loss = criterion(predictions, valid_target)
                 total_val_loss += v_loss.item()
         avg_val_loss = total_val_loss / len(val_loader.dataset)
     
