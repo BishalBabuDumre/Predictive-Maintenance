@@ -5,7 +5,7 @@ def save_filename(scaler, target_filename, directory_path="data/model", ):
   
   full_path = os.path.join(directory_path, target_filename)
   
-  os.makedirs(output_dir, exist_ok=True)
+  os.makedirs(directory_path, exist_ok=True)
   
   joblib.dump(scaler, full_path)
   
