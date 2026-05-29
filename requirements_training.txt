@@ -6,3 +6,4 @@ optuna
 torch
 onnx
 onnxscript
+onnxruntime
