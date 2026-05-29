@@ -25,7 +25,7 @@ def production_impute_temperature(file_input, target_col='Temperature(F)', max_f
     if nan_count == 0:
         return df_imputed
         
-    print(f"[NaN Handler] Found {nan_count} missing values. Executing imputation layers...", flush=True)
+    print(f"[NaN Handler] Found {nan_count} missing values. Executing imputation layers...")
 
     # --- Tier 1: Short-term Dropout (Forward Fill) ---
     # If a sensor drops out for 1 to 3 hours, we assume the physical space 
