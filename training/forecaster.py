@@ -51,7 +51,7 @@ def objective(trial):
     df_train, features_train, target_train = prepare_data_frame(train_path)
     ort_inputs_train = {'input': df_train[features_train].values.astype(np.float32)}
     _, mu_train, _ = ort_session.run(None, ort_inputs_train)
-    df_train["mu"] = mu_train
+    df_train["mu"] = list(mu_train)
     features_train = ["mu"]
     train_loader = prepare_vae_data(df_train, features_train, target_train)
     
