@@ -7,9 +7,10 @@ import onnxruntime as ort
 import torch.optim as optim
 from training.model import VAE
 from training.data_preparation import prepare_vae_data
+from training.forecaster_data_prep import extract_latent_dataset
 from training.feature_engineering import prepare_data_frame
-from training.early_stopping import EarlyStopping
 from training.onnx_export import export_and_verify_onnx
+from training.early_stopping import EarlyStopping
 
 final_input_dim = None
 study = None  # Will be assigned in the main block to allow global context checks
