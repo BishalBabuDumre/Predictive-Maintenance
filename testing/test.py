@@ -63,15 +63,15 @@ def evaluate_pipeline(data_source, onnx_model_path="data/model/vae_model.onnx", 
     """
     # 1. Initialize Runtime
     session = ort.InferenceSession(onnx_model_path)
-    
-    # 2. Extract and Process Features (Handles internal 7-day rolling calculations)
-    df, features, target = prepare_data_frame(data_source)
-    
-    if df["DateTime"].dt.tz is not None:
-        df["DateTime"] = df["DateTime"].dt.tz_localize(None)
 
     #Calling imputation function to fill NaNs
-    df_valid = production_impute_temperature(df)
+    data_source = production_impute_temperature(data_source)
+    
+    # 2. Extract and Process Features (Handles internal 7-day rolling calculations)
+    df_valid, features, target = prepare_data_frame(data_source)
+    
+    if df_valid["DateTime"].dt.tz is not None:
+        df_valid["DateTime"] = df_valid["DateTime"].dt.tz_localize(None)
     
     if df_valid.empty:
         raise ValueError("No valid rows left to evaluate after feature engineering. Check imputation logic.")
