@@ -24,8 +24,8 @@ def export_and_verify_onnx(model, input_dim, folder_path="data/model", file_name
         output_names=['output', 'mu', 'logvar'],
         dynamic_axes={
         'input': {0: 'batch_size'}, 
-        'recon_batch': {0: 'batch_size'},
-        'predictions': {0: 'batch_size'},
+        'output': {0: 'batch_size'},
+        'mu': {0: 'batch_size'},
         'logvar': {0: 'batch_size'}
         }    
     )
