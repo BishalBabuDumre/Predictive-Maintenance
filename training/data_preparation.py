@@ -14,14 +14,14 @@ def prepare_vae_data(df, features, target, scaler_x_name, scaler_y_name, batch_s
     scaler_x = MinMaxScaler(feature_range=(-1, 1))
     scaler_y = MinMaxScaler(feature_range=(0, 1))
 
+    X_scaled = scaler_x.fit_transform(X)
+    y_scaled = scaler_y.fit_transform(y)
+    
     if scaler_x_name:
         save_filename(scaler_x, scaler_x_name)
 
     if scaler_y_name:
         save_filename(scaler_y, scaler_y_name)
-    
-    X_scaled = scaler_x.fit_transform(X)
-    y_scaled = scaler_y.fit_transform(y)
     
     # 5. Create Tensors
     X_tensor = torch.FloatTensor(X_scaled)
