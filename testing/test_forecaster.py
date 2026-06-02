@@ -101,7 +101,7 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     recon_x, mu, logvar = session_vae.run(None, onnx_inputs_vae)
 
     # 4. Batch Inference over all Timestamps
-    onnx_inputs_forecast = {session_forecast.get_inputs()[0].name: Y_scaled}
+    onnx_inputs_forecast = {session_forecast.get_inputs()[0].name: mu}
     recon_x, predictions, logvar = session_forecast.run(None, onnx_inputs_forecast)
 
     # Vectorized calculation: Mean Square Error along axis 1 (features)
