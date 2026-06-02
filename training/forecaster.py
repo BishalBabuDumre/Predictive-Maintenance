@@ -13,6 +13,9 @@ from training.feature_engineering import prepare_data_frame
 from training.onnx_export import export_and_verify_onnx
 from training.early_stopping import EarlyStopping
 
+train_path = os.path.join('data/raw/training_data.csv')
+valid_path = os.path.join('data/raw/validation_data.csv')
+onnx_model_path = "data/model/vae_model.onnx"
 final_input_dim = None
 study = None  # Will be assigned in the main block to allow global context checks
 
@@ -41,12 +44,7 @@ def objective(trial):
         "activation": activation,  
         "dropout": dropout             
     }
-    
-    train_path = os.path.join('data/raw/training_data.csv')
-    valid_path = os.path.join('data/raw/validation_data.csv')
-    onnx_model_path = "data/model/vae_model.onnx"
-
-    
+ 
     train_loader, input_dim = extract_latent_dataset(train_path, onnx_model_path)
     val_loader, _ = extract_latent_dataset(valid_path, onnx_model_path)
     
