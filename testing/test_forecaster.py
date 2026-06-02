@@ -104,6 +104,8 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     onnx_inputs_forecast = {session_forecast.get_inputs()[0].name: mu}
     recon_x, predictions, logvar = session_forecast.run(None, onnx_inputs_forecast)
 
+    print(predictions.shape, Y_scaled.shape)
+                          
     # Vectorized calculation: Mean Square Error along axis 1 (features)
     mae = mean_absolute_error(Y_scaled, predictions)
     rmse = np.sqrt(mean_squared_error(Y_scaled, predictions))
