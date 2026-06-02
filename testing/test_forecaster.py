@@ -151,26 +151,26 @@ if __name__ == "__main__":
     
     # Merge on DateTime to cross-reference clean vs corrupted reconstruction anomalies
     diagnostic_df = pd.merge(
-        df_clean_results[['DateTime', 'Temperature(F)', 'Reconstruction_Loss']],
-        df_perturbed_results[['DateTime', 'Temperature(F)', 'Reconstruction_Loss']],
+        df_clean_results[['DateTime', 'Temperature(F)', 'MAE', 'RMSE', 'R2']],
+        df_perturbed_results[['DateTime', 'Temperature(F)', 'MAE', 'RMSE', 'R2']],
         on='DateTime',
         suffixes=('_Clean', '_Perturbed')
     )
     
     # Look at the final 10 rows to see the immediate effect of the final spike
     print("\nChecking tail observations (Targeting Immediate Spike):")
-    print(diagnostic_df[['DateTime', 'Temperature(F)_Clean', 'Temperature(F)_Perturbed', 'Reconstruction_Loss_Clean', 'Reconstruction_Loss_Perturbed']].tail(5).to_string(index=False))
+    print(diagnostic_df[['DateTime', 'Temperature(F)_Clean', 'Temperature(F)_Perturbed', 'MAE_Clean', 'RMSE_Clean', 'R2_Clean', 'MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].tail(5).to_string(index=False))
     
     # Check intermediate segments where Flatline occurred
     # Locate where the perturbed data was forced to 72.0 while the clean data differed
     flatline_mask = (diagnostic_df['Temperature(F)_Perturbed'] == 72.0) & (diagnostic_df['Temperature(F)_Clean'] != 72.0)
     if flatline_mask.any():
         print("\nChecking segment during active Flatline Sensor Failure:")
-        print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'Reconstruction_Loss_Clean', 'Reconstruction_Loss_Perturbed']].head(5).to_string(index=False))
+        print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'MAE_Clean', 'RMSE_Clean', 'R2_Clean', 'MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].head(5).to_string(index=False))
         
     # Validation Rule assertion
-    max_perturbed_loss = diagnostic_df['Reconstruction_Loss_Perturbed'].max()
-    median_clean_loss = diagnostic_df['Reconstruction_Loss_Clean'].median()
+    max_perturbed_loss = diagnostic_df[['MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].max()
+    median_clean_loss = diagnostic_df[['MAE_Clean', 'RMSE_Clean', 'R2_Clean']].median()
     
     print("\n--- Final Framework Verdict ---")
     if max_perturbed_loss > (median_clean_loss * 10):
