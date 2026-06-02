@@ -18,7 +18,7 @@ def extract_latent_dataset(csv_path, onnx_model_path, save_scalers=False):
     
     # Match the output names specified in your original torch.onnx.export step
     _, mu, _ = ort_session.run(None, ort_inputs)
-    mu_df = pd.DataFrame(mu, columns=[f'feature_{i}' for i in range(8)])
+    mu_df = pd.DataFrame(mu, columns=[f'feature_{i}' for i in range(8)], index=df.index)
     tar_df = df[target]
     df_new = pd.concat([tar_df, mu_df], axis=1)
     features_new = [f'feature_{i}' for i in range(8)]
