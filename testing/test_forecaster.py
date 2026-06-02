@@ -169,12 +169,12 @@ if __name__ == "__main__":
         print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'MAE_Clean', 'RMSE_Clean', 'R2_Clean', 'MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].head(5).to_string(index=False))
         
     # Validation Rule assertion
-    max_perturbed_loss = diagnostic_df[['MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].max()
-    median_clean_loss = diagnostic_df[['MAE_Clean', 'RMSE_Clean', 'R2_Clean']].median()
+    max_perturbed_mae_loss = diagnostic_df['MAE_Perturbed'].max()
+    median_clean_mae_loss = diagnostic_df['MAE_Clean'].median()
     
     print("\n--- Final Framework Verdict ---")
-    if max_perturbed_loss > (median_clean_loss * 10):
+    if max_perturbed_mae_loss > (median_clean_mae_loss * 10):
         print(f"PASSED: The pipeline caught the injected anomalies successfully.")
-        print(f"Peak Perturbed Error: {max_perturbed_loss:.5f} vs. Normal Median Error: {median_clean_loss:.5f}")
+        print(f"Peak Perturbed Error: {max_perturbed_mae_loss:.5f} vs. Normal Median Error: {median_clean_mae_loss:.5f}")
     else:
         print("FAILED/WARNING: Injected anomalies did not show distinct elevation profiles in loss space. Check your scaling bounds or feature engineering imputation defaults.")
