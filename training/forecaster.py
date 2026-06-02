@@ -156,7 +156,11 @@ if __name__ == "__main__":
     # Optional Production Practice: Log the final winning learning rate alongside the exported asset
     final_lr = study.best_params["learning_rate"]
     print(f"Note: Champion model weights were optimized using a learning rate of: {final_lr:.6f}")
-    
+
+    # Saving scalers
+    print("Saving final production scalers...")
+    _, _ = extract_latent_dataset(train_path, onnx_model_path, save_scalers=True)
+        
     # Export only the single ultimate champion containing all correct shapes and properties
     export_and_verify_onnx(best_model, final_input_dim, file_name="forecast_model.onnx")
 
