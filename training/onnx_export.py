@@ -18,7 +18,7 @@ def export_and_verify_onnx(model, input_dim, folder_path="data/model", file_name
         dummy_input, 
         save_path,
         export_params=True,
-        opset_version=12,
+        opset_version=15,
         do_constant_folding=True,
         input_names=['input'],
         output_names=['output', 'mu', 'logvar'],
