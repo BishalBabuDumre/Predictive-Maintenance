@@ -28,3 +28,6 @@ def extract_latent_dataset(csv_path, onnx_model_path, save_scalers=False):
     loader = prepare_vae_data(df_new, features_new, target, sx, sy)
     
     return loader, mu.shape[1]
+
+if __name__ == "__main__":
+    extract_latent_dataset('data/raw/training_data.csv', "data/model/vae_model.onnx", save_scalers=True)
