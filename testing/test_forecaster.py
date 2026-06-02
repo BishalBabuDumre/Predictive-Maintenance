@@ -130,9 +130,14 @@ if __name__ == "__main__":
     
     # Print clean benchmark
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
-    print(f"""Mean Absolute Error: {df_clean_results['MAE']:.6f}, 
-          RMSE: {df_clean_results['MAE']:.6f},
-          R^{2}: {df_clean_results['R2']:.6f}""")
+    print(f"""Mean Absolute Error:
+    {df_clean_results['MAE'].round(6)}
+    
+    RMSE:
+    {df_clean_results['RMSE'].round(6)}
+    
+    R²:
+    {df_clean_results['R2'].round(6)}""")
     
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
