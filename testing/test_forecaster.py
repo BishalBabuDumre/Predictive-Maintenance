@@ -144,7 +144,7 @@ if __name__ == "__main__":
     df_perturbed_input = inject_edge_cases(raw_df)
     
     print("\nStep 2: Running pipeline evaluation across corrupted dataset...")
-    df_perturbed_results = evaluate_pipeline(df_perturbed_input, onnx_path, scaler_path)
+    df_perturbed_results = evaluate_pipeline(df_perturbed_input, onnx_vae_path, scaler_x_path, onnx_forecast_path, scaler_y_path)
     
     # --- Step 3: Analysis & Verification ---
     print("\n--- Edge Case Testing Diagnostic Report ---")
