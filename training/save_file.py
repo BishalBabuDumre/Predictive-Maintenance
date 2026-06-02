@@ -1,7 +1,7 @@
 import os
 import joblib
 
-def save_filename(scaler, target_filename, directory_path="data/model", ):
+def save_filename(scaler, target_filename, directory_path="data/model"):
   
   full_path = os.path.join(directory_path, target_filename)
   
