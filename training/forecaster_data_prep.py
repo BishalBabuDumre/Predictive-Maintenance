@@ -4,7 +4,7 @@ import onnxruntime as ort
 from training.feature_engineering import prepare_data_frame
 from training.data_preparation import prepare_vae_data
 
-def extract_latent_dataset(csv_path, onnx_model_path, save_scalers=False):
+def extract_latent_dataset(csv_path, onnx_model_path, sx=None, sy=None):
     """
     Passes data through the static frozen ONNX VAE to generate a clean, 
     unsupervised tensor dataset ready for downstream forecasting.
@@ -23,8 +23,6 @@ def extract_latent_dataset(csv_path, onnx_model_path, save_scalers=False):
     df_new = pd.concat([tar_df, mu_df], axis=1)
     features_new = [f'feature_{i}' for i in range(8)]
 
-    sx = "scaler_x_forecaster.pkl" if save_scalers else None
-    sy = "scaler_y_forecaster.pkl" if save_scalers else None
     loader = prepare_vae_data(df_new, features_new, target, sx, sy)
     
     return loader, mu.shape[1]
