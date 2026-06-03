@@ -12,6 +12,9 @@ from training.feature_engineering import prepare_data_frame
 from training.early_stopping import EarlyStopping
 from training.onnx_export import export_and_verify_onnx
 
+train_path = os.path.join('data/raw/training_data.csv')
+valid_path = os.path.join('data/raw/validation_data.csv')
+df_train, features_train, target_train = prepare_data_frame(train_path)
 final_input_dim = None
 study = None  # Will be assigned in the main block to allow global context checks
 
@@ -42,10 +45,6 @@ def objective(trial):
         "beta": beta                 
     }
     
-    train_path = os.path.join('data/raw/training_data.csv')
-    valid_path = os.path.join('data/raw/validation_data.csv')
-    
-    df_train, features_train, target_train = prepare_data_frame(train_path)
     train_loader = prepare_vae_data(df_train, features_train, target_train)
     input_dim = len(features_train)
     final_input_dim = input_dim  # Update global reference
@@ -173,6 +172,9 @@ if __name__ == "__main__":
     # Optional Production Practice: Log the final winning learning rate alongside the exported asset
     final_lr = study.best_params["learning_rate"]
     print(f"Note: Champion model weights were optimized using a learning rate of: {final_lr:.6f}")
+
+     # Saving scaler for input X
+    _ = prepare_vae_data(df_train, features_train, target_train, "scaler_X.pkl" )
     
     # Export only the single ultimate champion containing all correct shapes and properties
     export_and_verify_onnx(best_model, final_input_dim)
