@@ -83,8 +83,17 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     if df_valid.empty:
         raise ValueError("No valid rows left to evaluate after feature engineering. Check imputation logic.")
 
-    X_raw = df_valid[features].values.astype(np.float32)
-    Y_raw = df_valid[target].values.astype(np.float32)
+    # --- NEW: Calculate Naïve Persistence Baseline ---
+    # Shift target values by 1 step (1 hour) to represent "t-1"
+    # Use the raw data_source or df_valid depending on where the continuous timeline is intact
+    df_valid['Persistence_Pred'] = df_valid[target].shift(1)
+    
+    # Drop the very first row only for baseline comparison since it won't have a t-1 value
+    df_metrics = df_valid.dropna(subset=['Persistence_Pred']).copy()
+
+    X_raw = df_metrics[features].values.astype(np.float32)
+    Y_raw = df_metrics[target].values.astype(np.float32)
+    Y_persistence = df_metrics['Persistence_Pred'].values.astype(np.float32)
   
     # 3. Scale X Data using Production Scaler (Transform Only)
     if not os.path.exists(scaler_X_path):
@@ -114,6 +123,11 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     df_valid['MAE'] = np.mean(np.abs(Y_raw - predictions), axis=1)
     df_valid['RMSE'] = np.sqrt(np.mean((Y_raw - predictions)**2, axis=1))
     df_valid['R2'] = r2_score(Y_raw, predictions)
+
+    # Persistence Baseline Errors
+    df_metrics['Persistence_MAE'] = np.mean(np.abs(Y_raw - Y_persistence), axis=1)
+    df_metrics['Persistence_RMSE'] = np.sqrt(np.mean((Y_raw - Y_persistence)**2, axis=1))
+    df_metrics['Persistence_R2'] = r2_score(Y_raw, Y_persistence)
     
     return df_valid
 
@@ -132,14 +146,14 @@ if __name__ == "__main__":
     
     # Print clean benchmark
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
-    print(f"""Mean Absolute Error:
-    {df_clean_results['MAE'].mean():.6f}
+    print(f"""Mean Absolute Error (Baseline/Persistence):
+    {df_clean_results['MAE'].mean():.6f}, / {df_clean_results['Persistence_MAE'].mean():.6f}
     
     RMSE:
-    {df_clean_results['RMSE'].mean():.6f}
+    {df_clean_results['RMSE'].mean():.6f}, / {df_clean_results['Persistence_RMSE'].mean():.6f}
     
     R²:
-    {df_clean_results['R2'].mean():.6f}""")
+    {df_clean_results['R2'].mean():.6f}, / {df_clean_results['Persistence_R2'].mean():.6f}""")
     
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
