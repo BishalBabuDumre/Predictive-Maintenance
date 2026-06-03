@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     # Saving scalers
     print("Saving final production scalers...")
-    _, _ = extract_latent_dataset(train_path, onnx_model_path, save_scalers=True)
+    _, _ = extract_latent_dataset(train_path, onnx_model_path, "scaler_mu.pkl", "scaler_target.pkl")
         
     # Export only the single ultimate champion containing all correct shapes and properties
     export_and_verify_onnx(best_model, final_input_dim, file_name="forecast_model.onnx")
