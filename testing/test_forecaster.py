@@ -111,14 +111,9 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     predictions = scaler_y.inverse_transform(predictions_scaled)
                          
     # 8. Vectorized calculation: Mean Square Error along axis 1 (features)
-    mae = mean_absolute_error(Y_raw, predictions)
-    rmse = np.sqrt(mean_squared_error(Y_raw, predictions))
-    r2 = r2_score(Y_raw, predictions)
-    
-    # Attach tracking metrics back to the valid dataframe
-    df_valid['MAE'] = mae
-    df_valid['RMSE'] = rmse
-    df_valid['R2'] = r2
+    df_valid['MAE'] = np.mean(np.abs(Y_raw - predictions), axis=1)
+    df_valid['RMSE'] = np.sqrt(np.mean((Y_raw - predictions)**2, axis=1))
+    df_valid['R2'] = r2_score(Y_raw, predictions)
     
     return df_valid
 
