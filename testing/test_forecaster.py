@@ -120,9 +120,9 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     predictions = scaler_y.inverse_transform(predictions_scaled)
                          
     # 8. Vectorized calculation: Mean Square Error along axis 1 (features)
-    df_valid['MAE'] = np.mean(np.abs(Y_raw - predictions), axis=1)
-    df_valid['RMSE'] = np.sqrt(np.mean((Y_raw - predictions)**2, axis=1))
-    df_valid['R2'] = r2_score(Y_raw, predictions)
+    df_metrics['MAE'] = np.mean(np.abs(Y_raw - predictions), axis=1)
+    df_metrics['RMSE'] = np.sqrt(np.mean((Y_raw - predictions)**2, axis=1))
+    df_metrics['R2'] = r2_score(Y_raw, predictions)
 
     # Persistence Baseline Errors
     df_metrics['Persistence_MAE'] = np.mean(np.abs(Y_raw - Y_persistence), axis=1)
