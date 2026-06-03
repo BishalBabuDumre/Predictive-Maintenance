@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader, TensorDataset
 from training.save_file import save_filename
 
-def prepare_vae_data(df, features, target, scaler_x_name, scaler_y_name, batch_size=64):
+def prepare_vae_data(df, features, target, scaler_x_name=None, scaler_y_name=None, batch_size=64):
     
     X = df[features].to_numpy()
     y = df[target].to_numpy()
