@@ -18,7 +18,7 @@ def generate_and_save_scalers(train_csv_path, output_dir="data/model"):
     
     # 3. Save the scaler artifact
     os.makedirs(output_dir, exist_ok=True)
-    scaler_path = os.path.join(output_dir, "scaler_x.pkl")
+    scaler_path = os.path.join(output_dir, "scaler_X.pkl")
     
     joblib.dump(scaler_x, scaler_path)
     print(f"Success! Scaler saved to: {scaler_path}")
