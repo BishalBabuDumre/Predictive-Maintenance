@@ -87,10 +87,10 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     Y_raw = df_valid[target].values.astype(np.float32)
   
     # 3. Scale X Data using Production Scaler (Transform Only)
-    if not os.path.exists(scaler_x_path):
-        raise FileNotFoundError(f"Scaler not found at {scaler_x_path}.")
-    scaler_x = joblib.load(scaler_x_path)
-    X_scaled = scaler_x.transform(X_raw)    
+    if not os.path.exists(scaler_X_path):
+        raise FileNotFoundError(f"Scaler not found at {scaler_X_path}.")
+    scaler_X = joblib.load(scaler_X_path)
+    X_scaled = scaler_X.transform(X_raw)    
     
     # 4. Batch Inference over all Timestamps
     onnx_inputs_vae = {session_vae.get_inputs()[0].name: X_scaled}
