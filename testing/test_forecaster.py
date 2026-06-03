@@ -129,7 +129,7 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     df_metrics['Persistence_RMSE'] = np.sqrt(np.mean((Y_raw - Y_persistence)**2, axis=1))
     df_metrics['Persistence_R2'] = r2_score(Y_raw, Y_persistence)
     
-    return df_valid
+    return df_metrics
 
 
 if __name__ == "__main__":
