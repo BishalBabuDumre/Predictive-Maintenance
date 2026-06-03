@@ -58,9 +58,11 @@ def inject_edge_cases(df_clean):
 
 
 def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onnx",
-                      scaler_x_path="data/model/scaler_x_vae.pkl",
+                      scaler_X_path="data/model/scaler_X.pkl",
                       onnx_forecast_model_path="data/model/forecast_model.onnx",
-                      scaler_y_path="data/model/scaler_y_forecaster.pkl"):
+                      scaler_y_path="data/model/scaler_target.pkl",
+                      scaler_mu_path="data/model/scaler_mu.pkl"
+                     ):
     """
     Evaluates every single valid timestamp in the dataset sequentially.
     Accepts either a file path string or a pre-loaded pandas DataFrame.
@@ -90,23 +92,27 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     scaler_x = joblib.load(scaler_x_path)
     X_scaled = scaler_x.transform(X_raw)    
     
-    # 3. Scale Y Data using Production Scaler (Transform Only)
+    # 4. Batch Inference over all Timestamps
+    onnx_inputs_vae = {session_vae.get_inputs()[0].name: X_scaled}
+    _, mu, _ = session_vae.run(None, onnx_inputs_vae)
+
+    # 5. Scale mu in order to feed it into the ONNX model
+    scaler_mu = joblib.load(scaler_mu_path)
+    mu_scaled = scaler_mu.transform(mu)    
+                          
+    # 6. Batch Inference over all Timestamps
+    onnx_inputs_forecast = {session_forecast.get_inputs()[0].name: mu_scaled}
+    _, predictions_scaled, _ = session_forecast.run(None, onnx_inputs_forecast)
+
+    # 7. Scale Y Data using Production Scaler (Transform Only)
     if not os.path.exists(scaler_y_path):
         raise FileNotFoundError(f"Scaler not found at {scaler_y_path}.")
     scaler_y = joblib.load(scaler_y_path)
-    Y_scaled = scaler_y.transform(Y_raw)
-    
-    # 4. Batch Inference over all Timestamps
-    onnx_inputs_vae = {session_vae.get_inputs()[0].name: X_scaled}
-    recon_x, mu, logvar = session_vae.run(None, onnx_inputs_vae)
-
-    # 4. Batch Inference over all Timestamps
-    onnx_inputs_forecast = {session_forecast.get_inputs()[0].name: mu}
-    recon_x, predictions, logvar = session_forecast.run(None, onnx_inputs_forecast)
-                          
-    # Vectorized calculation: Mean Square Error along axis 1 (features)
+    predictions = scaler_y.inverse_transform(predictions_scaled)
+                         
+    # 8. Vectorized calculation: Mean Square Error along axis 1 (features)
     mae = mean_absolute_error(Y_scaled, predictions)
-    rmse = np.sqrt(mean_squared_error(Y_scaled, predictions))
+    rmse = np.sqrt(mean_squared_error(Y_raw, predictions))
     r2 = r2_score(Y_scaled, predictions)
     
     # Attach tracking metrics back to the valid dataframe
@@ -121,12 +127,13 @@ if __name__ == "__main__":
     # Define paths
     clean_file_path = "data/raw/testing_data.csv"  # Swap out for your half-year file path
     onnx_forecast_path = "data/model/forecast_model.onnx"
-    scaler_y_path = "data/model/scaler_y_forecaster.pkl"
     onnx_vae_path = "data/model/vae_model.onnx"
-    scaler_x_path = "data/model/scaler_x_vae.pkl"
+    scaler_X_path = "data/model/scaler_X.pkl"
+    scaler_y_path = "data/model/scaler_target.pkl"
+    scaler_mu_path="data/model/scaler_mu.pkl"
     
     print("Step 1: Running baseline evaluation on every timestamp (Clean Data)...")
-    df_clean_results = evaluate_pipeline(clean_file_path, onnx_vae_path, scaler_x_path, onnx_forecast_path, scaler_y_path)
+    df_clean_results = evaluate_pipeline(clean_file_path, onnx_vae_path, scaler_X_path, onnx_forecast_path, scaler_y_path, scaler_mu_path)
     
     # Print clean benchmark
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
