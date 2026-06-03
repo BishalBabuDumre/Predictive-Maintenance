@@ -30,3 +30,32 @@ optimized_params = {
     "random_state": 42
 }
 ```
+
+## Variational Auto-Encoder (VAE) with Prognostic Axon
+
+### Pipeline Architecture
+
+```text
+       [ Raw Input Data ]  (Features, Lagged Variables, Rolling Windows)
+               │
+               ▼
+   ┌───────────────────────┐
+   │  VAE BACKBONE (Soma)  │  --> Extracts deep spatial-temporal representations
+   └───────────┬───────────┘
+               │
+               ▼
+    [ Latent Space (μ) ]      --> Compressed probabilistic normal distribution
+               │
+               ▼
+   ┌───────────────────────┐
+   │    PROGNOSTIC AXON    │  --> Decodes representation down downstream tasks
+   └─────┬───────────┬─────┘
+         │           │
+         ▼           ▼
+   ┌───────────┐┌───────────┐
+   │ Forecast  ││Diagnostic │
+   │  Branch   ││  Branch   │
+   └─────┬─────┘└─────┬─────┘
+         │           │
+         ▼           ▼
+     [ 72.4°F ]  [ 98% Flatline Risk ]
