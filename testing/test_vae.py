@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # Define paths
     clean_file_path = "data/raw/testing_data.csv"  # Swap out for your half-year file path
     onnx_path = "data/model/vae_model.onnx"
-    scaler_path = "data/model/scaler_x.pkl"
+    scaler_path = "data/model/scaler_X.pkl"
     
     print("Step 1: Running baseline evaluation on every timestamp (Clean Data)...")
     df_clean_results = evaluate_pipeline(clean_file_path, onnx_path, scaler_path)
