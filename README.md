@@ -36,9 +36,9 @@ optimized_params = {
 
 ## Variational Auto-Encoder (VAE) with Prognostic Axon (VAPA)
 ### Why VAE?
-Classical ML models such as Support Vector Machine (SVM) and IsoFor, implemented above, are only able to detect anomaly but can't forecast. They calculate on the basis of how far a value is in the feature landscape and treat each event as a separate incident completely ignoring the chronology. Similarly, Classical Time-Series Forecasting algorithms such as AutoRegressive Integrated Moving Average (ARIMA) & Prophet treats daily, weekly, and seasonal cycles as a linear function and totally ignore the multi-variate complex non-linear interplay of weather observations. Likewise, DL algorithms such as Long Short-Term Memory Network (LSTM) and Gated Recurrent Unit (GRU) are highly susceptible to the noise in the data and focus only on raw prediction. Hence, we have chosen VAE for accomplishing our tasks because it weeds out the noise in the data and compresses all the complex weather interplay in a robust latent space closely reconstructing the original input and calculating the downstream task of temperature prediction.
+Classical ML models such as Support Vector Machine (SVM) and IsoFor, implemented above, are only able to detect anomaly but can't forecast. They calculate on the basis of how far a value is in the feature landscape and treat each event as a separate incident completely ignoring the chronology. Similarly, Classical Time-Series Forecasting algorithms such as AutoRegressive Integrated Moving Average (ARIMA) & Prophet treat daily, weekly, and seasonal cycles as a linear function and totally ignore the multi-variate complex non-linear interplay of weather observations. Likewise, DL algorithms such as Long Short-Term Memory Network (LSTM) and Gated Recurrent Unit (GRU) are highly susceptible to the noise in the data and focus only on raw prediction. Hence, we have chosen VAE for accomplishing our tasks because it weeds out the noise in the data and compresses all the complex weather interplay in a robust latent space closely reconstructing the original input and calculating the downstream task of temperature prediction.
 ### The Pipeline
-The pipeline that we chose has been shown graphically below at Figure 3. Our model (main/training/model.py) is based on VAE which extracts deep spatio-temporal representations of the raw temperature observations stemming from the complex weather phenomenon. The algorithm development process begins from the feature engineering for VAE pipeline which is similar to the discussion of IsoFor above. Details can be found at main/training/featureEngineering.py. We performed hyperparamter tuning using Bayesian approach and experiment tracking as in IsoFor above. For compressing the raw data into the latent representation in the reconstruction task axon, we were mainly interested in the optimization of Latent Dimension ([2, 4, 8, 16]), Learning Rate (1e-4 – 1e-2), Beta (0.1, 1.0, step=0.1)) factor between Mean Square Error (MSE) and Kullback–Leibler Divergence (KLD) losses, Activation Functions (["ReLU", "LeakyReLU", "ELU", "Tanh"]), Dropout ([None, 0.1, 0.2]), and Hidden Layer choices ([[32, 16], [64, 32], [64, 32, 16]]). The fully optimized result is given below:
+The pipeline that we chose has been shown graphically below at Figure 3. Our model (main/training/model.py) is based on VAE which extracts deep spatio-temporal representations of the raw temperature observations stemming from the complex weather phenomenon. The algorithm development process begins from the feature engineering for VAE pipeline which is similar to the discussion of IsoFor above. Details can be found at main/training/featureEngineering.py. We performed hyperparamter tuning using BayOpt approach and experiment tracking as in IsoFor above. For compressing the raw data into the latent representation in the reconstruction task axon, we were mainly interested in the optimization of Latent Dimension ([2, 4, 8, 16]), Learning Rate (1e-4 – 1e-2), Beta (0.1, 1.0, step=0.1)) factor between Mean Square Error (MSE) and Kullback–Leibler Divergence (KLD) losses, Activation Functions (["ReLU", "LeakyReLU", "ELU", "Tanh"]), Dropout ([None, 0.1, 0.2]), and Hidden Layer choices ([[32, 16], [64, 32], [64, 32, 16]]). The fully optimized result is given below:
 Best Trial Hyperparameters:
   - latent_dim: 8
   - learning_rate: 0.0032858256336512834
@@ -47,18 +47,18 @@ Best Trial Hyperparameters:
   - dropout: None
   - hidden_layers: [32, 16]
 
-Similarly, for the predictive axon, we utilized the latent space output from the reconstruction branch of the axon. Our optimized choice for predictive branch is:
+Similarly, for the predictive task axon, we utilized the latent space output from the reconstruction branch of the axon. Our optimized choice for predictive branch is:
 Best Trial Hyperparameters:
   - learning_rate: 0.00528172817954173
   - activation: LeakyReLU
   - dropout: 0.1
   - hidden_layers: [32]
 
-During the training phase, we utilized one year of data (main/data/raw/validation_data.csv) for the validation purpose. Similarly, testing is done in roughly 5 months of data. Various test scripts are present at main/testing. Final ONNX models and scaler files are saved at main/data/model.
+During the training phase, we utilized one year of data (main/data/raw/validation_data.csv) for the validation purpose. Similarly, testing is done in roughly 5 months of data (main/data/raw/validation_data.csv).
 ### Pipeline Architecture
 
 ```text
-       [ Raw Input Data ]  (Features, Lagged Variables, Rolling Windows)
+      [ Raw Input Data ]  (Features, Lagged Variables, Rolling Windows)
                │
                ▼
    ┌───────────────────────┐
@@ -66,7 +66,7 @@ During the training phase, we utilized one year of data (main/data/raw/validatio
    └───────────┬───────────┘
                │
                ▼
-    [ Latent Space (μ) ]      --> Compressed probabilistic normal distribution
+      [ Latent Space (μ) ]      --> Compressed probabilistic normal distribution
                │
                ▼
    ┌───────────────────────┐
@@ -80,15 +80,38 @@ During the training phase, we utilized one year of data (main/data/raw/validatio
    └─────┬─────┘└─────┬─────┘
          │           │
          ▼           ▼
-     [ 72.4°F ]  [ Normal/Spike/Drift ]
+     [ 72.4°F ]  [ Normal/Spike/Drift/Flatline ]
 ```
 **Figure 3:** Graphical Representation of the pipeline.
 
 ### The Findings
-During the training and validation phase at our diagnostic branch carried out using main/training/vae.py, we saved the ONNX model exports and scalers at main/data/model for further implementations downstream. After the training and validation phase, we went to test our algorithm using main/testing/test_vae.py. We obtained the Median of MSE and Mean Absolute Deviation (MAD) values to be 0.020700 and 0.006850 respectively. Further, we have artifically injected flatline, some NaNs, and a huge spike. The NaN values are imputated by bringing the same temperature value over three hours and interpolating if more than three hours of data are absent. After the test, we have been able to determine threshold for various diagnostic measures as given below. One can utilize their own dataset and develop their own thresholds:
+During the training and validation phase in the BayOpt process at our **Diagnostic Branch** carried out using main/training/vae.py, we saved the ONNX model exports and scalers at main/data/model for further implementations downstream. After the training and validation phase, we went to test our algorithm using main/testing/test_vae.py. We obtained the Median of MSE and Mean Absolute Deviation (MAD) values to be 0.020700 and 0.006850 respectively. Further, we have artifically injected flatline, some NaNs, and a huge spike. The NaN values are imputated by bringing the same temperature value over three hours and interpolating if more than three hours of data are absent. After the test, we have been able to determine threshold for various diagnostic measures as given below. One can utilize their own dataset and develop their own thresholds for the deployment:
 | Alert Tier | Statistical Boundary | Concrete Operational Limit | Production Engine Status & Meaning |
 | :--- | :--- | :--- | :--- |
 | 🟢 **System Normal** | $\le \text{Median} + (3 \times \text{MAD})$ | $\le 0.04125$ | **HEALTHY:** Ideal, expected cyclic operational patterns. |
 | ⚪ **System Buffer** | $> 3 \times \text{MAD}$ up to $\le 4 \times \text{MAD}$ | $> 0.04125$ and $\le 0.04810$ | **HEALTHY (High Volatility):** Normal environmental noise, weather transitions, or minor sensor fluctuations. No alert triggered. |
 | 🟡 **Warning** | $> \text{Median} + (4 \times \text{MAD})$ | $> 0.04810$ | **ALERT TRIGGERED:** Pattern disruption confirmed. Evaluates for Sensor Flatlines or Drift. |
 | 🔴 **Critical** | $> \text{Median} + (20 \times \text{MAD})$ | $> 0.15770$ | **ALERT TRIGGERED:** Catastrophic system shock or immediate hardware failure. |
+
+On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py), calculated Mean Absolute Error (MAE), Root MSE (RMSE), and R² score (Coefficient of Determination) were utilized to compare against The Naïve Persistence Model (This is a simple model where we project the forecasting temperature is exactly what is there one hour ago.) The results are:
+| Metric | This VAPA Model | Naïve Persistence Model | Relative Performance |
+| :--- | :---: | :---: | :---: |
+| **Mean Absolute Error (MAE)** | 1.458618 | 2.218092 | VAPA outperforms by ~34.2% |
+| **Root Mean Squared Error (RMSE)** | 1.458618 | 2.785078 | VAPA outperforms by ~47.6% |
+| **Coefficient of Determination ($R^2$)** | 0.156438 | -0.342538 | VAPA explains variance; Naïve fails |
+## Metric Explanations
+
+### 1. Mean Absolute Error (MAE)
+* **Baseline:** `1.458618`
+* **Persistence:** `2.218092`
+* **Interpretation:** On average, the baseline model's predictions are closer to the actual values than the persistence model. A lower MAE indicates better average accuracy.
+
+### 2. Root Mean Squared Error (RMSE)
+* **Baseline:** `1.458618`
+* **Persistence:** `2.785078`
+* **Interpretation:** The baseline model significantly reduces larger errors compared to the persistence model. *(Note: The baseline MAE and RMSE being perfectly identical typically implies that error magnitudes are perfectly uniform across your test distribution, or might warrant double-checking the code execution).*
+
+### 3. Coefficient of Determination ($R^2$)
+* **Baseline:** `0.156438`
+* **Persistence:** `-0.342538`
+* **Interpretation:** The baseline model explains approximately **15.64%** of the variance in the target variable. The negative $R^2$ score for the persistence model implies that predicting using pure persistence performs worse than a horizontal line representing the mean of the dataset.
