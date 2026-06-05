@@ -37,29 +37,7 @@ optimized_params = {
 ## Variational Auto-Encoder (VAE) with Prognostic Axon (VAPA)
 ### Why VAE?
 Classical ML models such as Support Vector Machine (SVM) and IsoFor, implemented above, are only able to detect anomaly but can't forecast. They calculate on the basis of how far a value is in the feature landscape and treat each event as a separate incident completely ignoring the chronology. Similarly, Classical Time-Series Forecasting algorithms such as AutoRegressive Integrated Moving Average (ARIMA) & Prophet treat daily, weekly, and seasonal cycles as a linear function and totally ignore the multi-variate complex non-linear interplay of weather observations. Likewise, DL algorithms such as Long Short-Term Memory Network (LSTM) and Gated Recurrent Unit (GRU) are highly susceptible to the noise in the data and focus only on raw prediction. Hence, we have chosen VAE for accomplishing our tasks because it weeds out the noise in the data and compresses all the complex weather interplay in a robust latent space closely reconstructing the original input and calculating the downstream task of temperature prediction.
-### The Pipeline
-The pipeline that we chose has been shown graphically below at Figure 3. Our model (main/training/model.py) is based on VAE which extracts deep spatio-temporal representations of the raw temperature observations stemming from the complex weather phenomenon. The algorithm development process begins from the feature engineering for VAE pipeline which is similar to the discussion of IsoFor above. Details can be found at main/training/featureEngineering.py. We performed hyperparamter tuning using BayOpt approach and experiment tracking as in IsoFor above. For compressing the raw data into the latent representation in the reconstruction task axon, we were mainly interested in the optimization of Latent Dimension ([2, 4, 8, 16]), Learning Rate (1e-4 – 1e-2), Beta (0.1, 1.0, step=0.1)) factor between Mean Square Error (MSE) and Kullback–Leibler Divergence (KLD) losses, Activation Functions (["ReLU", "LeakyReLU", "ELU", "Tanh"]), Dropout ([None, 0.1, 0.2]), and Hidden Layer choices ([[32, 16], [64, 32], [64, 32, 16]]). The validation and training losses came out the best for trial 27 as in Figure 3. The fully optimized result is given below:
-Best Trial Hyperparameters:
-  - latent_dim: 8
-  - learning_rate: 0.0032858256336512834
-  - beta: 0.1
-  - activation: ELU
-  - dropout: None
-  - hidden_layers: [32, 16]
 
-<p float="left">
-  <img src="images/Val_Loss.png" width="45%" alt="First Image" />
-  <img src="images/Train_Loss.png" width="45%" alt="Second Image" />
-</p>
-
-Similarly, for the predictive task axon, we utilized the latent space output from the reconstruction branch of the axon. Our optimized choice for predictive branch is:
-Best Trial Hyperparameters:
-  - learning_rate: 0.00528172817954173
-  - activation: LeakyReLU
-  - dropout: 0.1
-  - hidden_layers: [32]
-
-During the training phase, we utilized one year of data (main/data/raw/validation_data.csv) for the validation purpose. Similarly, testing is done in roughly 5 months of data (main/data/raw/validation_data.csv).
 ### Pipeline Architecture
 
 ```text
@@ -88,6 +66,33 @@ During the training phase, we utilized one year of data (main/data/raw/validatio
      [ 72.4°F ]  [ Normal/Spike/Drift/Flatline ]
 ```
 **Figure 3:** Graphical Representation of the pipeline.
+
+### The Pipeline
+The pipeline that we chose has been shown graphically below at Figure 3. Our model (main/training/model.py) is based on VAE which extracts deep spatio-temporal representations of the raw temperature observations stemming from the complex weather phenomenon. The algorithm development process begins from the feature engineering for VAE pipeline which is similar to the discussion of IsoFor above. Details can be found at main/training/featureEngineering.py. We performed hyperparamter tuning using BayOpt approach and experiment tracking as in IsoFor above. For compressing the raw data into the latent representation in the reconstruction task axon, we were mainly interested in the optimization of Latent Dimension ([2, 4, 8, 16]), Learning Rate (1e-4 – 1e-2), Beta (0.1, 1.0, step=0.1)) factor between Mean Square Error (MSE) and Kullback–Leibler Divergence (KLD) losses, Activation Functions (["ReLU", "LeakyReLU", "ELU", "Tanh"]), Dropout ([None, 0.1, 0.2]), and Hidden Layer choices ([[32, 16], [64, 32], [64, 32, 16]]). The validation and training losses came out to be the best for trial 27 as shown in pink line in Figure 4. The fully optimized result is given below:
+
+Best Trial Hyperparameters:
+  - latent_dim: 8
+  - learning_rate: 0.0032858256336512834
+  - beta: 0.1
+  - activation: ELU
+  - dropout: None
+  - hidden_layers: [32, 16]
+
+<p float="left">
+  <img src="images/Val_Loss.png" width="45%" alt="First Image" />
+  <img src="images/Train_Loss.png" width="45%" alt="Second Image" />
+</p>
+
+**Figure 4:** Validation and Training Losses for Reconstruction Task.
+
+Similarly, for the predictive task axon, we utilized the latent space output from the reconstruction branch of the axon. Our optimized choice for predictive branch is:
+Best Trial Hyperparameters:
+  - learning_rate: 0.00528172817954173
+  - activation: LeakyReLU
+  - dropout: 0.1
+  - hidden_layers: [32]
+
+During the training phase, we utilized one year of data (main/data/raw/validation_data.csv) for the validation purpose. Similarly, testing is done in roughly 5 months of data (main/data/raw/validation_data.csv).
 
 ### The Findings
 During the training and validation phase in the BayOpt process at our **Diagnostic Branch** carried out using main/training/vae.py, we saved the ONNX model exports and scalers at main/data/model for further implementations downstream. After the training and validation phase, we went to test our algorithm using main/testing/test_vae.py. We obtained the Median of MSE and Mean Absolute Deviation (MAD) values to be 0.020700 and 0.006850 respectively. Further, we have artifically injected flatline, some NaNs, and a huge spike. The NaN values are imputated by bringing the same temperature value over three hours and interpolating if more than three hours of data are absent. After the test, we have been able to determine threshold for various diagnostic measures as given below. One can utilize their own dataset and develop their own thresholds for the deployment:
