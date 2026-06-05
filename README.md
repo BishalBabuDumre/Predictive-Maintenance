@@ -38,7 +38,7 @@ optimized_params = {
 ### Why VAE?
 Classical ML models such as Support Vector Machine (SVM) and IsoFor, implemented above, are only able to detect anomaly but can't forecast. They calculate on the basis of how far a value is in the feature landscape and treat each event as a separate incident completely ignoring the chronology. Similarly, Classical Time-Series Forecasting algorithms such as AutoRegressive Integrated Moving Average (ARIMA) & Prophet treat daily, weekly, and seasonal cycles as a linear function and totally ignore the multi-variate complex non-linear interplay of weather observations. Likewise, DL algorithms such as Long Short-Term Memory Network (LSTM) and Gated Recurrent Unit (GRU) are highly susceptible to the noise in the data and focus only on raw prediction. Hence, we have chosen VAE for accomplishing our tasks because it weeds out the noise in the data and compresses all the complex weather interplay in a robust latent space closely reconstructing the original input and calculating the downstream task of temperature prediction.
 ### The Pipeline
-The pipeline that we chose has been shown graphically below at Figure 3. Our model (main/training/model.py) is based on VAE which extracts deep spatio-temporal representations of the raw temperature observations stemming from the complex weather phenomenon. The algorithm development process begins from the feature engineering for VAE pipeline which is similar to the discussion of IsoFor above. Details can be found at main/training/featureEngineering.py. We performed hyperparamter tuning using BayOpt approach and experiment tracking as in IsoFor above. For compressing the raw data into the latent representation in the reconstruction task axon, we were mainly interested in the optimization of Latent Dimension ([2, 4, 8, 16]), Learning Rate (1e-4 – 1e-2), Beta (0.1, 1.0, step=0.1)) factor between Mean Square Error (MSE) and Kullback–Leibler Divergence (KLD) losses, Activation Functions (["ReLU", "LeakyReLU", "ELU", "Tanh"]), Dropout ([None, 0.1, 0.2]), and Hidden Layer choices ([[32, 16], [64, 32], [64, 32, 16]]). The fully optimized result is given below:
+The pipeline that we chose has been shown graphically below at Figure 3. Our model (main/training/model.py) is based on VAE which extracts deep spatio-temporal representations of the raw temperature observations stemming from the complex weather phenomenon. The algorithm development process begins from the feature engineering for VAE pipeline which is similar to the discussion of IsoFor above. Details can be found at main/training/featureEngineering.py. We performed hyperparamter tuning using BayOpt approach and experiment tracking as in IsoFor above. For compressing the raw data into the latent representation in the reconstruction task axon, we were mainly interested in the optimization of Latent Dimension ([2, 4, 8, 16]), Learning Rate (1e-4 – 1e-2), Beta (0.1, 1.0, step=0.1)) factor between Mean Square Error (MSE) and Kullback–Leibler Divergence (KLD) losses, Activation Functions (["ReLU", "LeakyReLU", "ELU", "Tanh"]), Dropout ([None, 0.1, 0.2]), and Hidden Layer choices ([[32, 16], [64, 32], [64, 32, 16]]). The validation and training losses came out the best for trial 27 as in Figure 3. The fully optimized result is given below:
 Best Trial Hyperparameters:
   - latent_dim: 8
   - learning_rate: 0.0032858256336512834
@@ -46,6 +46,11 @@ Best Trial Hyperparameters:
   - activation: ELU
   - dropout: None
   - hidden_layers: [32, 16]
+
+<p float="left">
+  <img src="images/Val_Loss.png" width="45%" alt="First Image" />
+  <img src="images/Train_Loss.png" width="45%" alt="Second Image" />
+</p>
 
 Similarly, for the predictive task axon, we utilized the latent space output from the reconstruction branch of the axon. Our optimized choice for predictive branch is:
 Best Trial Hyperparameters:
