@@ -152,6 +152,7 @@ if __name__ == "__main__":
     # Mean of Errors
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
     print(f"""Mean of Errors (Baseline/Persistence):
+    Absolute Error (AE):
     {df_clean_results['AE'].mean():.6f}, / {df_clean_results['Persistence_AE'].mean():.6f}
     
     RMSE:
@@ -162,6 +163,7 @@ if __name__ == "__main__":
 
     # Maximum of Errors
     print(f"""Maximum of Errors (Baseline/Persistence):
+    AE:
     {df_clean_results['AE'].max():.6f}, / {df_clean_results['Persistence_AE'].max():.6f}
     
     RMSE:
@@ -172,6 +174,7 @@ if __name__ == "__main__":
 
     # Minimum of Errors
     print(f"""Minimum of Errors (Baseline/Persistence):
+    AE:
     {df_clean_results['AE'].min():.6f}, / {df_clean_results['Persistence_AE'].min():.6f}
     
     RMSE:
@@ -182,6 +185,7 @@ if __name__ == "__main__":
     
     # Standard Deviation of Errors
     print(f"""Standard Deviation of Errors (Baseline/Persistence):
+    AE:
     {df_clean_results['AE'].std():.6f}, / {df_clean_results['Persistence_AE'].std():.6f}
     
     RMSE:
