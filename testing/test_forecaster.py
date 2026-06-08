@@ -120,13 +120,13 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
     predictions = scaler_y.inverse_transform(predictions_scaled)
                          
     # 8. Vectorized calculation: Mean Square Error along axis 1 (features)
-    df_metrics['MAE'] = np.mean(np.abs(Y_raw - predictions), axis=1)
-    df_metrics['RMSE'] = np.sqrt(np.mean((Y_raw - predictions)**2, axis=1))
+    df_metrics['AE'] = np.abs(Y_raw - predictions) #Absolute Error
+    df_metrics['RMSE'] = np.sqrt((Y_raw - predictions)**2)
     df_metrics['R2'] = r2_score(Y_raw, predictions)
 
     # Persistence Baseline Errors
-    df_metrics['Persistence_MAE'] = np.mean(np.abs(Y_raw - Y_persistence), axis=1)
-    df_metrics['Persistence_RMSE'] = np.sqrt(np.mean((Y_raw - Y_persistence)**2, axis=1))
+    df_metrics['Persistence_AE'] = np.abs(Y_raw - Y_persistence)
+    df_metrics['Persistence_RMSE'] = np.sqrt((Y_raw - Y_persistence)**2)
     df_metrics['Persistence_R2'] = r2_score(Y_raw, Y_persistence)
     
     return df_metrics
@@ -144,17 +144,56 @@ if __name__ == "__main__":
     print("Step 1: Running baseline evaluation on every timestamp (Clean Data)...")
     df_clean_results = evaluate_pipeline(clean_file_path, onnx_vae_path, scaler_X_path, onnx_forecast_path, scaler_y_path, scaler_mu_path)
     
-    # Print clean benchmark
+    # Mean of Errors
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
-    print(f"""Mean Absolute Error (Baseline/Persistence):
-    {df_clean_results['MAE'].mean():.6f}, / {df_clean_results['Persistence_MAE'].mean():.6f}
+    print(f"""Mean of Errors (Baseline/Persistence):
+    {df_clean_results['AE'].mean():.6f}, / {df_clean_results['Persistence_AE'].mean():.6f}
     
     RMSE:
     {df_clean_results['RMSE'].mean():.6f}, / {df_clean_results['Persistence_RMSE'].mean():.6f}
     
     R²:
     {df_clean_results['R2'].mean():.6f}, / {df_clean_results['Persistence_R2'].mean():.6f}""")
+
+    # Maximum of Errors
+    print(f"""Maximum of Errors (Baseline/Persistence):
+    {df_clean_results['AE'].max():.6f}, / {df_clean_results['Persistence_AE'].max():.6f}
     
+    RMSE:
+    {df_clean_results['RMSE'].max():.6f}, / {df_clean_results['Persistence_RMSE'].max():.6f}
+    
+    R²:
+    {df_clean_results['R2'].max():.6f}, / {df_clean_results['Persistence_R2'].max():.6f}""")
+
+    # Minimum of Errors
+    print(f"""Minimum of Errors (Baseline/Persistence):
+    {df_clean_results['AE'].min():.6f}, / {df_clean_results['Persistence_AE'].min():.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].min():.6f}, / {df_clean_results['Persistence_RMSE'].min():.6f}
+    
+    R²:
+    {df_clean_results['R2'].min():.6f}, / {df_clean_results['Persistence_R2'].min():.6f}""")
+    
+    # Standard Deviation of Errors
+    print(f"""Standard Deviation of Errors (Baseline/Persistence):
+    {df_clean_results['AE'].std():.6f}, / {df_clean_results['Persistence_AE'].std():.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].std():.6f}, / {df_clean_results['Persistence_RMSE'].std():.6f}
+    
+    R²:
+    {df_clean_results['R2'].std():.6f}, / {df_clean_results['Persistence_R2'].std():.6f}""")
+    
+    # Plotting Distribution of Errors:
+    print("Plotting Distribution of Errors for Clean Data:")
+    data = df_clean_results['MAE'].dropna()
+    hist, bins = np.histogram(data, bins=20)
+    max_count = hist.max()
+    for count, left, right in zip(hist, bins[:-1], bins[1:]):
+        bar = "█" * int(50 * count / max_count)
+        print(f"{left:8.4f} - {right:8.4f} | {bar} ({count})")
+        
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
     df_perturbed_input = inject_edge_cases(raw_df)
@@ -167,26 +206,26 @@ if __name__ == "__main__":
     
     # Merge on DateTime to cross-reference clean vs corrupted reconstruction anomalies
     diagnostic_df = pd.merge(
-        df_clean_results[['DateTime', 'Temperature(F)', 'MAE', 'RMSE', 'R2']],
-        df_perturbed_results[['DateTime', 'Temperature(F)', 'MAE', 'RMSE', 'R2']],
+        df_clean_results[['DateTime', 'Temperature(F)', 'AE', 'RMSE', 'R2']],
+        df_perturbed_results[['DateTime', 'Temperature(F)', 'AE', 'RMSE', 'R2']],
         on='DateTime',
         suffixes=('_Clean', '_Perturbed')
     )
     
     # Look at the final 10 rows to see the immediate effect of the final spike
     print("\nChecking tail observations (Targeting Immediate Spike):")
-    print(diagnostic_df[['DateTime', 'Temperature(F)_Clean', 'Temperature(F)_Perturbed', 'MAE_Clean', 'RMSE_Clean', 'R2_Clean', 'MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].tail(5).to_string(index=False))
+    print(diagnostic_df[['DateTime', 'Temperature(F)_Clean', 'Temperature(F)_Perturbed', 'AE_Clean', 'RMSE_Clean', 'R2_Clean', 'AE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].tail(5).to_string(index=False))
     
     # Check intermediate segments where Flatline occurred
     # Locate where the perturbed data was forced to 72.0 while the clean data differed
     flatline_mask = (diagnostic_df['Temperature(F)_Perturbed'] == 72.0) & (diagnostic_df['Temperature(F)_Clean'] != 72.0)
     if flatline_mask.any():
         print("\nChecking segment during active Flatline Sensor Failure:")
-        print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'MAE_Clean', 'RMSE_Clean', 'R2_Clean', 'MAE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].head(5).to_string(index=False))
+        print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'AE_Clean', 'RMSE_Clean', 'R2_Clean', 'AE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].head(5).to_string(index=False))
         
     # Validation Rule assertion
-    max_perturbed_mae_loss = diagnostic_df['MAE_Perturbed'].max()
-    median_clean_mae_loss = diagnostic_df['MAE_Clean'].median()
+    max_perturbed_mae_loss = diagnostic_df['AE_Perturbed'].max()
+    median_clean_mae_loss = diagnostic_df['AE_Clean'].median()
     
     print("\n--- Final Framework Verdict ---")
     if max_perturbed_mae_loss > (median_clean_mae_loss * 10):
