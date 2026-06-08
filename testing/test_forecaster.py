@@ -193,6 +193,72 @@ if __name__ == "__main__":
     
     R²:
     {df_clean_results['R2'].std():.6f}, / {df_clean_results['Persistence_R2'].std():.6f}""")
+
+    # 95% Quantile of Errors
+    print(f"""95% Quantile of Errors (Baseline/Persistence):
+    AE:
+    {df_clean_results['AE'].quantile(0.95):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.95):.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].quantile(0.95):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.95):.6f}
+    
+    R²:
+    {df_clean_results['R2'].quantile(0.95):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.95):.6f}""")
+
+    # 99% Quantile of Errors
+    print(f"""99% Quantile of Errors (Baseline/Persistence):
+    AE:
+    {df_clean_results['AE'].quantile(0.99):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.99):.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].quantile(0.99):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.99):.6f}
+    
+    R²:
+    {df_clean_results['R2'].quantile(0.99):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.99):.6f}""")
+
+    # 80% Quantile of Errors
+    print(f"""80% Quantile of Errors (Baseline/Persistence):
+    AE:
+    {df_clean_results['AE'].quantile(0.80):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.80):.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].quantile(0.80):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.80):.6f}
+    
+    R²:
+    {df_clean_results['R2'].quantile(0.80):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.80):.6f}""")
+
+    # 85% Quantile of Errors
+    print(f"""85% Quantile of Errors (Baseline/Persistence):
+    AE:
+    {df_clean_results['AE'].quantile(0.85):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.85):.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].quantile(0.85):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.85):.6f}
+    
+    R²:
+    {df_clean_results['R2'].quantile(0.85):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.85):.6f}""")
+
+    # 90% Quantile of Errors
+    print(f"""90% Quantile of Errors (Baseline/Persistence):
+    AE:
+    {df_clean_results['AE'].quantile(0.90):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.90):.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].quantile(0.90):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.90):.6f}
+    
+    R²:
+    {df_clean_results['R2'].quantile(0.90):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.90):.6f}""")
+
+    # 80% Quantile of Errors
+    print(f"""92% Quantile of Errors (Baseline/Persistence):
+    AE:
+    {df_clean_results['AE'].quantile(0.92):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.92):.6f}
+    
+    RMSE:
+    {df_clean_results['RMSE'].quantile(0.92):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.92):.6f}
+    
+    R²:
+    {df_clean_results['R2'].quantile(0.92):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.92):.6f}""")
     
     # Plotting Distribution of Errors:
     print("Plotting Distribution of Errors for Clean Data:")
