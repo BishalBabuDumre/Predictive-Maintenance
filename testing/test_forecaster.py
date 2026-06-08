@@ -187,7 +187,7 @@ if __name__ == "__main__":
     
     # Plotting Distribution of Errors:
     print("Plotting Distribution of Errors for Clean Data:")
-    data = df_clean_results['MAE'].dropna()
+    data = df_clean_results['AE']
     hist, bins = np.histogram(data, bins=20)
     max_count = hist.max()
     for count, left, right in zip(hist, bins[:-1], bins[1:]):
