@@ -106,14 +106,14 @@ During the training and validation phase in the BayOpt process at our **Diagnost
 On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py), calculated Mean Absolute Error (MAE), Root MSE (RMSE), and R² score (Coefficient of Determination) were utilized to compare against The Naïve Persistence Model (This is a simple model where we project the forecasting temperature is exactly what is there one hour ago.) The results are:
 | Metric | This VAPA Model | Naïve Persistence Model | Relative Performance |
 | :--- | :---: | :---: | :---: |
-| **Mean Absolute Error (MAE)** | 1.458618 | 2.218092 | VAPA outperforms by ~34.2% |
-| **Root Mean Squared Error (RMSE)** | 1.933060 | 2.438654 | VAPA outperforms by ~26.16% |
+| **Mean Absolute Error (MAE)** | 1.458618 | 1.748494 | VAPA outperforms by ~16.57% |
+| **Root Mean Squared Error (RMSE)** | 1.933060 | 2.438654 | VAPA outperforms by ~20.73% |
 | **Coefficient of Determination ($R^2$)** | 0.156438 | -0.342538 | VAPA explains variance; Naïve fails |
 #### Metric Explanations
 
 ***1. Mean Absolute Error (MAE)***
 * **Baseline:** `1.458618`
-* **Persistence:** `2.218092`
+* **Persistence:** `1.748494`
 * **Interpretation:** On average, VAPA model's predictions are closer to the actual values than the persistence model. A lower MAE indicates better average accuracy.
 
 ***2. Root Mean Squared Error (RMSE)***
