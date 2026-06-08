@@ -118,6 +118,11 @@ def evaluate_pipeline(data_source, onnx_vae_model_path="data/model/vae_model.onn
         raise FileNotFoundError(f"Scaler not found at {scaler_y_path}.")
     scaler_y = joblib.load(scaler_y_path)
     predictions = scaler_y.inverse_transform(predictions_scaled)
+
+    # 8. Ensure arrays are strictly 1D using .flatten() to prevent broadcasting issues
+    Y_raw = Y_raw.flatten()
+    predictions = predictions.flatten()
+    Y_persistence = Y_persistence.flatten()
                          
     # 8. Vectorized calculation: Mean Square Error along axis 1 (features)
     df_metrics['AE'] = np.abs(Y_raw - predictions) #Absolute Error
