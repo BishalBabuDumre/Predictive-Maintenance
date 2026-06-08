@@ -117,8 +117,8 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 * **Interpretation:** On average, VAPA model's predictions are closer to the actual values than the persistence model. A lower MAE indicates better average accuracy.
 
 ***2. Root Mean Squared Error (RMSE)***
-* **Baseline:** `1.458618`
-* **Persistence:** `2.785078`
+* **Baseline:** `1.933060`
+* **Persistence:** `2.438654`
 * **Interpretation:** The VAPA model significantly reduces larger errors compared to the persistence model.
 
 ***3. Coefficient of Determination (R²)***
