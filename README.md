@@ -107,7 +107,7 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 | Metric | This VAPA Model | Naïve Persistence Model | Relative Performance |
 | :--- | :---: | :---: | :---: |
 | **Mean Absolute Error (MAE)** | 1.458618 | 2.218092 | VAPA outperforms by ~34.2% |
-| **Root Mean Squared Error (RMSE)** | 1.458618 | 2.785078 | VAPA outperforms by ~47.6% |
+| **Root Mean Squared Error (RMSE)** | 1.933060 | 2.438654 | VAPA outperforms by ~26.16% |
 | **Coefficient of Determination ($R^2$)** | 0.156438 | -0.342538 | VAPA explains variance; Naïve fails |
 #### Metric Explanations
 
