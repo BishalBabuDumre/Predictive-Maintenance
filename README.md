@@ -109,8 +109,8 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 | **Mean Absolute Error (MAE)** | 1.458618 | 1.748494 | VAPA outperforms by ~16.57% |
 | **Root Mean Squared Error (RMSE)** | 1.933060 | 2.438654 | VAPA outperforms by ~20.73% |
 | **Coefficient of Determination ($R^2$)** | 0.156438 | -0.342538 | VAPA explains variance; Naïve fails |
-| **Maximum of Absolute Error (AE)** | 11.077987 | 15.000000 | VAPA reduces the danger level. |
-| **95% Quantile for AE** | 3.924601 | 5.000000 | VAPA is operationally superior. |
+| **Maximum of Absolute Error (AE)** | 11.077987 | 15.000000 | VAPA reduces the danger level |
+| **95% Quantile for AE** | 3.924601 | 5.000000 | VAPA is operationally superior |
 #### Metric Explanations
 
 ***1. Mean Absolute Error (MAE)***
