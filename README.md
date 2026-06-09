@@ -110,7 +110,7 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 | **Root Mean Squared Error (RMSE)** | 1.933060 | 2.438654 | VAPA outperforms by ~20.73% |
 | **Coefficient of Determination ($R^2$)** | 0.156438 | -0.342538 | VAPA explains variance; Naïve fails |
 | **Maximum of Absolute Error (AE)** | 11.077987 | 15.000000 | Reduces the danger level. |
-| **95% Quantile of AE** | 3.924601 | 5.000000 | VAPA is better by 21.50%. |
+| **95% Quantile for AE** | 3.924601 | 5.000000 | VAPA is operationally superior. |
 #### Metric Explanations
 
 ***1. Mean Absolute Error (MAE)***
@@ -133,7 +133,7 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 * **Persistence:** `15.000000`
 * **Interpretation:** This metric provides the worst-case scenario if the model fails. VAPA slashes our maximum peak failure risk ($AE_{max}$) by over 26%, bringing the worst-case error down from a dangerous 15-degree variance to 11 degrees."
 
-***95% Quantile of AE***
+***5. 95% Quantile for AE***
 * **Baseline:** `3.924601`
 * **Persistence:** `5.000000`
 * **Interpretation:** 95% of the time, VAPA keeps our temperature error under $4^\circ$, whereas the persistence model blows past that to $5^\circ$ or more.
