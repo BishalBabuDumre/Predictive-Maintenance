@@ -109,6 +109,7 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 | **Mean Absolute Error (MAE)** | 1.458618 | 1.748494 | VAPA outperforms by ~16.57% |
 | **Root Mean Squared Error (RMSE)** | 1.933060 | 2.438654 | VAPA outperforms by ~20.73% |
 | **Coefficient of Determination ($R^2$)** | 0.156438 | -0.342538 | VAPA explains variance; Naïve fails |
+| **Maximum of AE** | 11.077987 | 15.000000 | Reduces the danger level. |
 #### Metric Explanations
 
 ***1. Mean Absolute Error (MAE)***
@@ -125,3 +126,9 @@ On the other hand, within **Forecast Branch** (main/testing/test_forecaster.py),
 * **Baseline:** `0.156438`
 * **Persistence:** `-0.342538`
 * **Interpretation:** This VAPA model explains approximately **15.64%** of the variance in the target variable. In traditional regression, this looks modest. However, in raw environmental sensor streams, high-frequency noise—like wind gusts or momentary direct sunlight—creates chaotic variance. Our framework deliberately filters out this micro-noise to capture macro-trends. The fact that we drastically beat the Naïve Persistence baseline confirms our model is capturing the true structural signal. The negative $R^2$ score for the Naïve Persistence model implies that predicting using pure persistence performs worse than a horizontal line representing the mean of the dataset. This demonstrates that while 0.156 seems low R² score in a vacuum, it represents a massive performance leap over simple data shifting.
+
+***4. Maximum of AE***
+**Baseline:** `11.077987`
+**Persistence:** `15.000000`
+**Interpretation:** This metric provides the worst-case scenario if the model fails. VAPA slashes our maximum peak failure risk ($AE_{max}$) by over 26%, bringing the worst-case error down from a dangerous 15-degree variance to 11 degrees."
+
