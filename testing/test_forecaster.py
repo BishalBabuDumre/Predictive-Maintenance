@@ -150,116 +150,18 @@ if __name__ == "__main__":
     print("Step 1: Running baseline evaluation on every timestamp (Clean Data)...")
     df_clean_results = evaluate_pipeline(clean_file_path, onnx_vae_path, scaler_X_path, onnx_forecast_path, scaler_y_path, scaler_mu_path)
     
-    # Mean of Errors
+    # Printing Errors
     print(f"Evaluated {len(df_clean_results)} baseline timestamps.")
-    print(f"""Mean of Errors (Baseline/Persistence):
-    Absolute Error (AE):
-    {df_clean_results['AE'].mean():.6f}, / {df_clean_results['Persistence_AE'].mean():.6f}
-    
+    print(f"""Errors (Baseline/Persistence):
     RMSE:
     {df_clean_results['RMSE'].mean():.6f}, / {df_clean_results['Persistence_RMSE'].mean():.6f}
     
     R²:
     {df_clean_results['R2'].mean():.6f}, / {df_clean_results['Persistence_R2'].mean():.6f}""")
 
-    # Maximum of Errors
-    print(f"""Maximum of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].max():.6f}, / {df_clean_results['Persistence_AE'].max():.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].max():.6f}, / {df_clean_results['Persistence_RMSE'].max():.6f}
-    
-    R²:
-    {df_clean_results['R2'].max():.6f}, / {df_clean_results['Persistence_R2'].max():.6f}""")
-
-    # Minimum of Errors
-    print(f"""Minimum of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].min():.6f}, / {df_clean_results['Persistence_AE'].min():.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].min():.6f}, / {df_clean_results['Persistence_RMSE'].min():.6f}
-    
-    R²:
-    {df_clean_results['R2'].min():.6f}, / {df_clean_results['Persistence_R2'].min():.6f}""")
-    
-    # Standard Deviation of Errors
-    print(f"""Standard Deviation of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].std():.6f}, / {df_clean_results['Persistence_AE'].std():.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].std():.6f}, / {df_clean_results['Persistence_RMSE'].std():.6f}
-    
-    R²:
-    {df_clean_results['R2'].std():.6f}, / {df_clean_results['Persistence_R2'].std():.6f}""")
-
-    # 95% Quantile of Errors
-    print(f"""95% Quantile of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].quantile(0.95):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.95):.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].quantile(0.95):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.95):.6f}
-    
-    R²:
-    {df_clean_results['R2'].quantile(0.95):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.95):.6f}""")
-
-    # 99% Quantile of Errors
-    print(f"""99% Quantile of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].quantile(0.99):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.99):.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].quantile(0.99):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.99):.6f}
-    
-    R²:
-    {df_clean_results['R2'].quantile(0.99):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.99):.6f}""")
-
-    # 80% Quantile of Errors
-    print(f"""80% Quantile of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].quantile(0.80):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.80):.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].quantile(0.80):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.80):.6f}
-    
-    R²:
-    {df_clean_results['R2'].quantile(0.80):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.80):.6f}""")
-
-    # 85% Quantile of Errors
-    print(f"""85% Quantile of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].quantile(0.85):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.85):.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].quantile(0.85):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.85):.6f}
-    
-    R²:
-    {df_clean_results['R2'].quantile(0.85):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.85):.6f}""")
-
-    # 90% Quantile of Errors
-    print(f"""90% Quantile of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].quantile(0.90):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.90):.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].quantile(0.90):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.90):.6f}
-    
-    R²:
-    {df_clean_results['R2'].quantile(0.90):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.90):.6f}""")
-
-    # 80% Quantile of Errors
-    print(f"""92% Quantile of Errors (Baseline/Persistence):
-    AE:
-    {df_clean_results['AE'].quantile(0.92):.6f}, / {df_clean_results['Persistence_AE'].quantile(0.92):.6f}
-    
-    RMSE:
-    {df_clean_results['RMSE'].quantile(0.92):.6f}, / {df_clean_results['Persistence_RMSE'].quantile(0.92):.6f}
-    
-    R²:
-    {df_clean_results['R2'].quantile(0.92):.6f}, / {df_clean_results['Persistence_R2'].quantile(0.92):.6f}""")
+    final_df = get_error_summary(df_clean_results)
+    with pd.option_context('display.max_columns', None):
+        print(final_df)
     
     # Plotting Distribution of Errors:
     print("Plotting Distribution of Errors for Clean Data:")
@@ -269,10 +171,6 @@ if __name__ == "__main__":
     for count, left, right in zip(hist, bins[:-1], bins[1:]):
         bar = "█" * int(50 * count / max_count)
         print(f"{left:8.4f} - {right:8.4f} | {bar} ({count})")
-
-    final_df = get_error_summary(df_clean_results)
-    with pd.option_context('display.max_columns', None):
-        print(final_df)
     
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
