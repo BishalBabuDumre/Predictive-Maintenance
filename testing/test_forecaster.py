@@ -106,13 +106,11 @@ if __name__ == "__main__":
     print(f"""Errors (Baseline/Persistence):
     RMSE:
     {df_clean_results['RMSE'].mean():.6f}, / {df_clean_results['Persistence_RMSE'].mean():.6f}
-    
     R²:
     {df_clean_results['R2'].mean():.6f}, / {df_clean_results['Persistence_R2'].mean():.6f}""")
 
     final_df = get_error_summary(df_clean_results)
-    with pd.option_context('display.max_columns', None):
-        print(final_df)
+    print(final_df)
     
     # Plotting Distribution of Errors:
     print("Plotting Distribution of Errors for Clean Data:")
