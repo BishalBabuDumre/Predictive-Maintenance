@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import onnxruntime as ort
 import joblib
+from testing.metrics_utils import print_error_metrics
 from training.feature_engineering import prepare_data_frame
 from testing.fill_missing import production_impute_temperature
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -268,7 +269,9 @@ if __name__ == "__main__":
     for count, left, right in zip(hist, bins[:-1], bins[1:]):
         bar = "█" * int(50 * count / max_count)
         print(f"{left:8.4f} - {right:8.4f} | {bar} ({count})")
-        
+
+    print_error_metrics(df_clean_results)
+    
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
     df_perturbed_input = inject_edge_cases(raw_df)
