@@ -110,6 +110,9 @@ if __name__ == "__main__":
     {df_clean_results['R2'].mean():.6f}, / {df_clean_results['Persistence_R2'].mean():.6f}""")
 
     ae_df = get_error_summary(df_clean_results)
+    title = "Metrics for Absolute Error(AE)"
+    print(title)
+    print("=" * len(title)) # Adds an underline for style
     print(ae_df)
     
     # Plotting Distribution of Errors:
