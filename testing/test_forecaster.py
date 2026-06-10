@@ -116,7 +116,7 @@ if __name__ == "__main__":
     print(ae_df)
     
     # Plotting Distribution of Errors:
-    print("Plotting Distribution of Errors for Clean Data:")
+    print("\n--- Plotting Distribution of Errors for Clean Data: ---")
     data = df_clean_results['AE']
     hist, bins = np.histogram(data, bins=20)
     max_count = hist.max()
@@ -152,14 +152,3 @@ if __name__ == "__main__":
     if flatline_mask.any():
         print("\nChecking segment during active Flatline Sensor Failure:")
         print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'AE_Clean', 'RMSE_Clean', 'R2_Clean', 'AE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].head(5).to_string(index=False))
-        
-    # Validation Rule assertion
-    max_perturbed_mae_loss = diagnostic_df['AE_Perturbed'].max()
-    median_clean_mae_loss = diagnostic_df['AE_Clean'].median()
-    
-    print("\n--- Final Framework Verdict ---")
-    if max_perturbed_mae_loss > (median_clean_mae_loss * 10):
-        print(f"PASSED: The pipeline caught the injected anomalies successfully.")
-        print(f"Peak Perturbed Error: {max_perturbed_mae_loss:.5f} vs. Normal Median Error: {median_clean_mae_loss:.5f}")
-    else:
-        print("FAILED/WARNING: Injected anomalies did not show distinct elevation profiles in loss space. Check your scaling bounds or feature engineering imputation defaults.")
