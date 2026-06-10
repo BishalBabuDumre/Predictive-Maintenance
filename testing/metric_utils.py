@@ -26,8 +26,7 @@ def get_error_summary(df):
             full_summary[f'Persistence_{m}'].map('{:.6f}'.format)
         )
 
-    # Naming the first index column and the title
+    # Naming the first index column
     df.index.name = 'Metrics'
-    df.style.set_caption("Metrics for Absolute Error (AE)")
     
     return pd.DataFrame(formatted_data)
