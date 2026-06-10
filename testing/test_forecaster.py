@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import onnxruntime as ort
 import joblib
-from testing.metrics_utils import print_error_metrics
+from testing.metric_utils import print_error_metrics
 from training.feature_engineering import prepare_data_frame
 from testing.fill_missing import production_impute_temperature
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
