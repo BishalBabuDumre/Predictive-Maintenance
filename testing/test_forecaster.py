@@ -123,32 +123,3 @@ if __name__ == "__main__":
     for count, left, right in zip(hist, bins[:-1], bins[1:]):
         bar = "█" * int(50 * count / max_count)
         print(f"{left:8.4f} - {right:8.4f} | {bar} ({count})")
-    
-    # Load raw data into memory to perform automated edge injections
-    raw_df = pd.read_csv(clean_file_path)
-    df_perturbed_input = inject_edge_cases(raw_df)
-    
-    print("\nStep 2: Running pipeline evaluation across corrupted dataset...")
-    df_perturbed_results = evaluate_pipeline(df_perturbed_input, onnx_vae_path, scaler_X_path, onnx_forecast_path, scaler_y_path, scaler_mu_path)
-    
-    # --- Step 3: Analysis & Verification ---
-    print("\n--- Edge Case Testing Diagnostic Report ---")
-    
-    # Merge on DateTime to cross-reference clean vs corrupted reconstruction anomalies
-    diagnostic_df = pd.merge(
-        df_clean_results[['DateTime', 'Temperature(F)', 'AE', 'RMSE', 'R2']],
-        df_perturbed_results[['DateTime', 'Temperature(F)', 'AE', 'RMSE', 'R2']],
-        on='DateTime',
-        suffixes=('_Clean', '_Perturbed')
-    )
-    
-    # Look at the final 10 rows to see the immediate effect of the final spike
-    print("\nChecking tail observations (Targeting Immediate Spike):")
-    print(diagnostic_df[['DateTime', 'Temperature(F)_Clean', 'Temperature(F)_Perturbed', 'AE_Clean', 'RMSE_Clean', 'R2_Clean', 'AE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].tail(5).to_string(index=False))
-    
-    # Check intermediate segments where Flatline occurred
-    # Locate where the perturbed data was forced to 72.0 while the clean data differed
-    flatline_mask = (diagnostic_df['Temperature(F)_Perturbed'] == 72.0) & (diagnostic_df['Temperature(F)_Clean'] != 72.0)
-    if flatline_mask.any():
-        print("\nChecking segment during active Flatline Sensor Failure:")
-        print(diagnostic_df[flatline_mask][['DateTime', 'Temperature(F)_Clean', 'AE_Clean', 'RMSE_Clean', 'R2_Clean', 'AE_Perturbed', 'RMSE_Perturbed', 'R2_Perturbed']].head(5).to_string(index=False))
