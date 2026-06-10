@@ -272,8 +272,6 @@ if __name__ == "__main__":
 
     final = get_error_summary(df_clean_results)
     print(final)
-    for f in final:
-        print(f)
     
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
