@@ -99,7 +99,7 @@ During the training and validation phase in the BayOpt process at our **Diagnost
 | Alert Tier | Statistical Boundary | Concrete Operational Limit | Production Engine Status & Meaning |
 | :--- | :--- | :--- | :--- |
 | 🟢 **System Normal** | $\le \text{Median} + (3 \times \text{MAD})$ | $\le 0.04125$ | **HEALTHY:** Ideal, expected cyclic operational patterns. |
-| ⚪ **System Buffer** | $> 3 \times \text{MAD}$ up to $\le 4 \times \text{MAD}$ | $> 0.04125$ and $\le 0.04810$ | **HEALTHY (High Volatility):** Normal environmental noise, weather transitions, or minor sensor fluctuations. No alert triggered. |
+| ⚪ **System Buffer** | $> \text{Median} + (3 \times \text{MAD})$ up to $\le \text{Median} + (4 \times \text{MAD})$ | $> 0.04125$ and $\le 0.04810$ | **HEALTHY (High Volatility):** Normal environmental noise, weather transitions, or minor sensor fluctuations. No alert triggered. |
 | 🟡 **Warning** | $> \text{Median} + (4 \times \text{MAD})$ | $> 0.04810$ | **ALERT TRIGGERED:** Pattern disruption confirmed. Evaluates for Sensor Flatlines or Drift. |
 | 🔴 **Critical** | $> \text{Median} + (20 \times \text{MAD})$ | $> 0.15770$ | **ALERT TRIGGERED:** Catastrophic system shock or immediate hardware failure. |
 
