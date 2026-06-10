@@ -2,7 +2,7 @@ import pandas as pd
 
 def get_error_summary(df):
     """Returns a clean DataFrame summarizing Baseline vs Persistence metrics."""
-    metrics = ['AE', 'RMSE', 'R2']
+    metrics = ['AE']
     all_cols = metrics + [f'Persistence_{m}' for m in metrics]
     
     # 1. Get standard descriptive stats
