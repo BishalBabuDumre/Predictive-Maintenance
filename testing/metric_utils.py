@@ -1,7 +1,7 @@
 import pandas as pd
 
 def get_error_summary(df):
-    """Returns a clean DataFrame summarizing Baseline vs Persistence metrics."""
+    """Returns a clean DataFrame summarizing Baseline vs Persistence Absolute Error metric."""
     metrics = ['AE']
     all_cols = metrics + [f'Persistence_{m}' for m in metrics]
     
