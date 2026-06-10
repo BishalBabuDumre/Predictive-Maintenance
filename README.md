@@ -165,4 +165,4 @@ Plotting Distribution of Errors for Clean Data:
   9.9702 -  10.5241 |  (0)
  10.5241 -  11.0780 |  (1)
 ```
-The histogram shows a classic, well-behaved right-skewed (log-normal/exponential decay) error distribution. The rapid drop-off in frequency mass means that extreme prediction errors are exceedingly rare. The long, rapidly decaying tail of the histogram illustrates why our RMSE improved so dramatically (~20.73%) compared to the MAE. The absolute worst-case error across the entire dataset was a single isolated event capping out at exactly 11.08°C, whereas the persistence model regularly degraded up to 15.00°C."
+The histogram shows a classic, well-behaved right-skewed (log-normal/exponential decay) error distribution. The rapid drop-off in frequency mass means that extreme prediction errors are exceedingly rare. The long, rapidly decaying tail of the histogram illustrates why our RMSE improved so dramatically (~20.73%) compared to the MAE. The absolute worst-case error across the entire dataset was a single isolated event capping out at exactly 11.08°C, whereas the persistence model regularly degraded up to 15.00°C.
