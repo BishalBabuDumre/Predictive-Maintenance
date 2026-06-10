@@ -270,7 +270,10 @@ if __name__ == "__main__":
         bar = "█" * int(50 * count / max_count)
         print(f"{left:8.4f} - {right:8.4f} | {bar} ({count})")
 
-    get_error_summary(df_clean_results)
+    final = get_error_summary(df_clean_results)
+    print(final)
+    for f in final:
+        print(f)
     
     # Load raw data into memory to perform automated edge injections
     raw_df = pd.read_csv(clean_file_path)
