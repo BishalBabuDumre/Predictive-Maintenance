@@ -82,7 +82,6 @@ int main() {
     std::cout << "Tier: " << prediction.alertTier << "\n"
               << "Status: " << prediction.status << "\n"
               << "Details: " << prediction.meaning << "\n";
-    std::system(cmd.c_str());
 
     return 0; 
 }
