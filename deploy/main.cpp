@@ -72,17 +72,16 @@ int main() {
     float* raw_output = output_tensors[0].GetTensorMutableData<float>();
     // =================================================
 
-    // 4. Send raw output to handler to deal with the spike/drift/bias parsing logic
-    InferenceResult prediction = handler.parseOutputs(raw_output);
-
-    // 5. Presentation and Telemetry Dispatch
-    std::cout << "Temp: " << new_temp << " -> Detected Class: " << prediction.className << "\n";
-
-    std::string cmd = "curl -X POST http://your-server/api -d \"temp=" + std::to_string(new_temp) + 
-                      "&class=" + prediction.className + 
-                      "&spike=" + std::to_string(prediction.spikeMag) + 
-                      "&drift=" + std::to_string(prediction.driftMag) + 
-                      "&bias=" + std::to_string(prediction.biasMag) + "\"";
+    // Assuming index 0 of your output tensor holds your target model evaluation score
+    float current_anomaly_score = raw_output[0]; 
+    
+    // Run the new tier filtering logic
+    InferenceResult prediction = handler.parseOutputs(current_anomaly_score);
+    
+    // Present outputs using the clean string fields
+    std::cout << "Tier: " << prediction.alertTier << "\n"
+              << "Status: " << prediction.status << "\n"
+              << "Details: " << prediction.meaning << "\n";
     std::system(cmd.c_str());
 
     return 0; 
