@@ -2,22 +2,19 @@
 #define INFERENCE_HANDLER_H
 
 #include <string>
-#include <vector>
 
-// Struct to package the parsed results cleanly
 struct InferenceResult {
-    std::string className;
-    float spikeMag;
-    float driftMag;
-    float biasMag;
+    std::string alertTier;     // 🟢 System Normal, ⚪ System Buffer, etc.
+    std::string status;        // HEALTHY, WARNING, CRITICAL
+    std::string meaning;       // Description of the current operational state
 };
 
 class InferenceHandler {
 public:
     InferenceHandler();
 
-    // Takes the raw flat float array from ONNX and extracts classes/magnitudes
-    InferenceResult parseOutputs(const float* raw_output);
+    // Evaluates the target metric against the statistical concrete limits
+    InferenceResult parseOutputs(float anomaly_metric);
 };
 
 #endif // INFERENCE_HANDLER_H
