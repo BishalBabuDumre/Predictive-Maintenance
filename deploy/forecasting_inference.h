@@ -1,4 +1,4 @@
-#define FORECASTING_INFERENCE_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -17,5 +17,3 @@ private:
     OnnxEngine model_engine_;
     InferenceHandler decision_handler_;
 };
-
-#endif // FORECASTING_INFERENCE_H
