@@ -1,5 +1,4 @@
-#ifndef ONNX_ENGINE_H
-#define ONNX_ENGINE_H
+#pragma once
 
 #include <onnxruntime_cxx_api.h>
 #include <vector>
@@ -22,5 +21,3 @@ private:
     std::vector<const char*> input_names_;
     std::vector<const char*> output_names_;
 };
-
-#endif // ONNX_ENGINE_H
