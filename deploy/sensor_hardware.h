@@ -1,5 +1,4 @@
-#ifndef SENSOR_HARDWARE_H
-#define SENSOR_HARDWARE_H
+#pragma once
 
 #include <string>
 
@@ -27,5 +26,3 @@ private:
     int index_ptr_ = 0;
     bool buffer_full_ = false;
 };
-
-#endif // SENSOR_HARDWARE_H
