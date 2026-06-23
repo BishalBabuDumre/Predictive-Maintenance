@@ -1,5 +1,4 @@
-#ifndef FEATURE_EXTRACTOR_H
-#define FEATURE_EXTRACTOR_H
+#pragma once
 
 #include <vector>
 #include "sensor_hardware.h"
@@ -18,5 +17,3 @@ private:
     // Rolling windows engine calculation
     void computeRollingStats(const float* buffer, int index_ptr, int window_size, float& mean, float& std) const;
 };
-
-#endif // FEATURE_EXTRACTOR_H
