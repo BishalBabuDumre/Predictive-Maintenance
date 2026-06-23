@@ -1,5 +1,4 @@
-#ifndef INFERENCE_HANDLER_H
-#define INFERENCE_HANDLER_H
+#pragma once
 
 #include <string>
 
@@ -16,5 +15,3 @@ public:
     // Evaluates the target metric against the statistical concrete limits
     InferenceResult parseOutputs(float anomaly_metric);
 };
-
-#endif // INFERENCE_HANDLER_H
