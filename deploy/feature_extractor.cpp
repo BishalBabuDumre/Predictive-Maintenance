@@ -29,7 +29,7 @@ void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, i
     std = (window_size > 1) ? std::sqrt(variance_sum / (window_size - 1)) : 0.0f;
 }
 
-std::vector<float> FeatureExtractor::extractFeatures(float current_temp, const SensorHardware& sensor) {
+std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, const SensorHardware& sensor) {
     const float* data = sensor.getBufferData();
     int ptr = sensor.getIndexPtr();
 
