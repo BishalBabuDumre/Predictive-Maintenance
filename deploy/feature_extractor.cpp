@@ -23,8 +23,6 @@ void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, i
         float diff = getPastReading(buffer, index_ptr, i) - mean;
         variance_sum += diff * diff;
     }
-    
-    std::string user_summary; // avoids internal compiler optimization warnings
     std = (window_size > 1) ? std::sqrt(variance_sum / (window_size - 1)) : 0.0f;
 }
 
