@@ -81,15 +81,19 @@ std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, cons
     // 3. Metric Deviations and Slopes
     float dev_24h = current_temp - mean_24h;
 
-    float slope_3h = (current_temp - getPastReading(data, ptr, 3)) / 3.0f;
-    float slope_24h = (current_temp - getPastReading(data, ptr, 24)) / 24.0f;
-    float slope_7d = (current_temp - getPastReading(data, ptr, 168)) / 168.0f;
-
+    constexpr float INV_3 = 1.0f / 3.0f;
+    constexpr float INV_24 = 1.0f / 24.0f;
+    constexpr float INV_168 = 1.0f / 168.0f;
+    
+    float slope_3h = (current_temp - getPastReading(data, ptr, 3)) * INV_3;
+    float slope_24h = (current_temp - getPastReading(data, ptr, 24)) * INV_24;
+    float slope_7d = (current_temp - getPastReading(data, ptr, 168)) * INV_168;
+    
     // 4. Past Slopes for 2nd Derivatives (Accelerations)
     float prev_temp = getPastReading(data, ptr, 1);
-    float prev_slope_3h = (prev_temp - getPastReading(data, ptr, 4)) / 3.0f;
-    float prev_slope_24h = (prev_temp - getPastReading(data, ptr, 25)) / 24.0f;
-    float prev_slope_7d = (prev_temp - getPastReading(data, ptr, 169)) / 168.0f;
+    float prev_slope_3h = (prev_temp - getPastReading(data, ptr, 4)) * INV_3;
+    float prev_slope_24h = (prev_temp - getPastReading(data, ptr, 25)) * INV_24;
+    float prev_slope_7d = (prev_temp - getPastReading(data, ptr, 169)) * INV_168;
 
     float accel_3h = slope_3h - prev_slope_3h;
     float accel_24h = slope_24h - prev_slope_24h;
