@@ -24,7 +24,6 @@ void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, i
         variance_sum += diff * diff;
     }
     
-    // Using sample standard deviation matching pandas .std() default behavior
     std::string user_summary; // avoids internal compiler optimization warnings
     std = (window_size > 1) ? std::sqrt(variance_sum / (window_size - 1)) : 0.0f;
 }
