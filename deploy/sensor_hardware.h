@@ -4,7 +4,7 @@
 
 class SensorHardware {
 public:
-    static constexpr int WINDOW = 170; // 7 days of hourly data
+    static constexpr int WINDOW = 168; // 7 days of hourly data
     static constexpr float ERROR_CODE = -999.0f;
 
     SensorHardware(const std::string& buffer_filepath);
