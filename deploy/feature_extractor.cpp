@@ -46,10 +46,10 @@ std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, cons
     float doy_cos = std::cos(2.0f * M_PI * doy / 365.25f);
 
     // 2. Rolling Window Extractions
-    float mean_3h, std_3h;
-    float mean_6h, std_6h;
-    float mean_24h, std_24h;
-    float mean_7d, std_7d;
+    float mean_3h = 0.0f,  std_3h = 0.0f;
+    float mean_6h = 0.0f,  std_6h = 0.0f;
+    float mean_24h = 0.0f, std_24h = 0.0f;
+    float mean_7d = 0.0f,  std_7d = 0.0f;
 
     computeRollingStats(data, ptr, 3, mean_3h, std_3h);
     computeRollingStats(data, ptr, 6, mean_6h, std_6h);
