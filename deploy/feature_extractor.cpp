@@ -1,6 +1,10 @@
 #include "feature_extractor.h"
 #include <cmath>
 #include <ctime>
+#include <numbers>
+
+// Create a clean, float-specific Pi shortcut
+constexpr float PI_F = std::numbers::pi_v<float>;
 
 FeatureExtractor::FeatureExtractor() {}
 
@@ -38,13 +42,21 @@ std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, cons
     int month = time_info->tm_mon + 1; // tm_mon is 0-11
     int doy = time_info->tm_yday + 1;  // tm_yday is 0-364
 
-    float hour_sin = std::sin(2.0f * M_PI * hour / 24.0f);
-    float hour_cos = std::cos(2.0f * M_PI * hour / 24.0f);
-    float month_sin = std::sin(2.0f * M_PI * month / 12.0f);
-    float month_cos = std::cos(2.0f * M_PI * month / 12.0f);
-    float doy_sin = std::sin(2.0f * M_PI * doy / 365.25f);
-    float doy_cos = std::cos(2.0f * M_PI * doy / 365.25f);
-
+    // Hour encoding (24-hour cycle)
+    float hour_phase = 2.0f * PI_F * static_cast<float>(hour) / 24.0f;
+    float hour_sin   = std::sin(hour_phase);
+    float hour_cos   = std::cos(hour_phase);
+    
+    // Month encoding (12-month cycle)
+    float month_phase = 2.0f * PI_F * static_cast<float>(month) / 12.0f;
+    float month_sin   = std::sin(month_phase);
+    float month_cos   = std::cos(month_phase);
+    
+    // Day of Year encoding (365.25-day solar cycle)
+    float doy_phase = 2.0f * PI_F * static_cast<float>(doy) / 365.25f;
+    float doy_sin   = std::sin(doy_phase);
+    float doy_cos   = std::cos(doy_phase);
+    
     // 2. Rolling Window Extractions
     float mean_3h = 0.0f,  std_3h = 0.0f;
     float mean_6h = 0.0f,  std_6h = 0.0f;
