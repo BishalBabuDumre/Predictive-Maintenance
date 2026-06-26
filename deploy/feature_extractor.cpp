@@ -101,7 +101,7 @@ std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, cons
 
     // 5. Repeat Count (consecutive flatline readings over a rolling 6h span)
     float repeat_count = 0.0f;
-    float current_val = getPastReading(data, ptr, 0);
+    float current_val = current_temp
     
     for (int i = 0; i < 6; ++i) {
         float next_val = getPastReading(data, ptr, i + 1);
