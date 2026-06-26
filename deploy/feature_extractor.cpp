@@ -20,10 +20,9 @@ void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, i
         mean = 0.0f; std = 0.0f;
         return;
     }
-
     float m2 = 0.0f;
     mean = 0.0f;
-
+    
     for (int i = 0; i < window_size; ++i) {
         float val = getPastReading(buffer, index_ptr, i);
         float delta = val - mean;
@@ -31,7 +30,6 @@ void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, i
         float delta2 = val - mean;
         m2 += delta * delta2;
     }
-
     std = (window_size > 1) ? std::sqrt(m2 / (window_size - 1)) : 0.0f;
 }
 
