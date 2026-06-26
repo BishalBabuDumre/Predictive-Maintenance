@@ -16,18 +16,23 @@ float FeatureExtractor::getPastReading(const float* buffer, int index_ptr, int s
 }
 
 void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, int window_size, float& mean, float& std) const {
-    float sum = 0.0f;
-    for (int i = 0; i < window_size; ++i) {
-        sum += getPastReading(buffer, index_ptr, i);
+    if (window_size <= 0) {
+        mean = 0.0f; std = 0.0f;
+        return;
     }
-    mean = sum / window_size;
 
-    float variance_sum = 0.0f;
+    float m2 = 0.0f;
+    mean = 0.0f;
+
     for (int i = 0; i < window_size; ++i) {
-        float diff = getPastReading(buffer, index_ptr, i) - mean;
-        variance_sum += diff * diff;
+        float val = getPastReading(buffer, index_ptr, i);
+        float delta = val - mean;
+        mean += delta / (i + 1);
+        float delta2 = val - mean;
+        m2 += delta * delta2;
     }
-    std = (window_size > 1) ? std::sqrt(variance_sum / (window_size - 1)) : 0.0f;
+
+    std = (window_size > 1) ? std::sqrt(m2 / (window_size - 1)) : 0.0f;
 }
 
 std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, const SensorHardware& sensor) {
@@ -42,18 +47,23 @@ std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, cons
     int month = time_info->tm_mon + 1; // tm_mon is 0-11
     int doy = time_info->tm_yday + 1;  // tm_yday is 0-364
 
+    // Pre-calculate the divisors at compile time!
+    constexpr float HOUR_MULTIPLIER  = (2.0f * PI_F) / 24.0f;
+    constexpr float MONTH_MULTIPLIER = (2.0f * PI_F) / 12.0f;
+    constexpr float DOY_MULTIPLIER   = (2.0f * PI_F) / 365.25f;
+    
     // Hour encoding (24-hour cycle)
-    float hour_phase = 2.0f * PI_F * static_cast<float>(hour) / 24.0f;
+    float hour_phase  = static_cast<float>(hour) * HOUR_MULTIPLIER;
     float hour_sin   = std::sin(hour_phase);
     float hour_cos   = std::cos(hour_phase);
     
     // Month encoding (12-month cycle)
-    float month_phase = 2.0f * PI_F * static_cast<float>(month) / 12.0f;
+    float month_phase = static_cast<float>(month) * MONTH_MULTIPLIER;
     float month_sin   = std::sin(month_phase);
     float month_cos   = std::cos(month_phase);
     
     // Day of Year encoding (365.25-day solar cycle)
-    float doy_phase = 2.0f * PI_F * static_cast<float>(doy) / 365.25f;
+    float doy_phase   = static_cast<float>(doy) * DOY_MULTIPLIER;
     float doy_sin   = std::sin(doy_phase);
     float doy_cos   = std::cos(doy_phase);
     
