@@ -15,24 +15,6 @@ float FeatureExtractor::getPastReading(const float* buffer, int index_ptr, int s
     return buffer[target_idx];
 }
 
-void FeatureExtractor::computeRollingStats(const float* buffer, int index_ptr, int window_size, float& mean, float& std) const {
-    if (window_size <= 0) {
-        mean = 0.0f; std = 0.0f;
-        return;
-    }
-    float m2 = 0.0f;
-    mean = 0.0f;
-    
-    for (int i = 0; i < window_size; ++i) {
-        float val = getPastReading(buffer, index_ptr, i);
-        float delta = val - mean;
-        mean += delta / (i + 1);
-        float delta2 = val - mean;
-        m2 += delta * delta2;
-    }
-    std = (window_size > 1) ? std::sqrt(m2 / (window_size - 1)) : 0.0f;
-}
-
 std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, const SensorHardware& sensor) {
     const float* data = sensor.getBufferData();
     int ptr = sensor.getIndexPtr();
@@ -71,10 +53,30 @@ std::array<float, 22> FeatureExtractor::extractFeatures(float current_temp, cons
     float mean_24h = 0.0f, std_24h = 0.0f;
     float mean_7d = 0.0f,  std_7d = 0.0f;
 
-    computeRollingStats(data, ptr, 3, mean_3h, std_3h);
-    computeRollingStats(data, ptr, 6, mean_6h, std_6h);
-    computeRollingStats(data, ptr, 24, mean_24h, std_24h);
-    computeRollingStats(data, ptr, 168, mean_7d, std_7d);
+    float m2 = 0.0f, current_running_mean = 0.0f;
+
+    for (int i = 0; i < 168; ++i) { // Welford’s Algorithm
+        float val = getPastReading(data, ptr, i);
+        float delta = val - current_running_mean;
+        current_running_mean += delta / (i + 1);
+        float delta2 = val - current_running_mean;
+        m2 += delta * delta2;
+    
+        // Snapshot milestones
+        if (i == 2) { // 3rd element (index 2)
+            mean_3h = current_running_mean;
+            std_3h = std::sqrt(m2 / 2.0f);
+        } else if (i == 5) { // 6th element
+            mean_6h = current_running_mean;
+            std_6h = std::sqrt(m2 / 5.0f);
+        } else if (i == 23) { // 24th element
+            mean_24h = current_running_mean;
+            std_24h = std::sqrt(m2 / 23.0f);
+        }
+    }
+    // 168h finishes at the end of the loop
+    mean_7d = current_running_mean;
+    std_7d = std::sqrt(m2 / 167.0f);
 
     // 3. Metric Deviations and Slopes
     float dev_24h = current_temp - mean_24h;
