@@ -4,9 +4,10 @@ import wandb
 import torch
 import optuna
 import torch.optim as optim
+from optuna.samplers import TPESampler
+from training.vae_utils import batch_loss
 from training.model import VAE
 from training.model import vae_loss_function
-from training.vae_utils import batch_loss
 from training.data_preparation import prepare_vae_data
 from training.feature_engineering import prepare_data_frame
 from training.early_stopping import EarlyStopping
@@ -144,7 +145,9 @@ def objective(trial):
 
 # ==================== MAIN EXECUTION SECTION ====================
 if __name__ == "__main__":
-    study = optuna.create_study(direction="minimize")
+    # Enable multivariate to capture hyperparameter interactions
+    sampler = TPESampler(multivariate=True)
+    study = optuna.create_study(direction="minimize", sampler=sampler)
     study.optimize(objective, n_trials=30)
 
     print(f"\n" + "═"*50)
